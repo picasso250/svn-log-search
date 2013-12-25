@@ -27,11 +27,14 @@ function search($keyword)
     unset($logs[0]);
     unset($logs[count($logs)-1]);
     $regex = '/'.str_replace('\\', "\\\\", $keyword).'/';
+    $i = 0;
     foreach ($logs as $log) {
         if (preg_match($regex, $log)) {
             echo "$log\n";
+            $i++;
         }
     }
+    echo "$i matched.\n";
 }
 
 function read_log($root_url)
