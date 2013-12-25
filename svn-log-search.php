@@ -23,7 +23,8 @@ function search($keyword)
         exit();
     }
     $log = read_log($root_url);
-    $logs = preg_split('/^-{20,}$/', $log);
+    $logs = explode('------------------------------------------------------------------------', $log);
+    unset($logs[0]);
     unset($logs[count($logs)-1]);
     $regex = '/'.str_replace('\\', "\\\\", $keyword).'/';
     foreach ($logs as $log) {
@@ -35,7 +36,7 @@ function search($keyword)
 
 function read_log($root_url)
 {
-    $fpath = __DIR__.'log/'.md5($root_url).'.log';
+    $fpath = __DIR__.'/log/'.md5($root_url).'.log';
     if (!file_exists($fpath)) {
         update_cache($root_url);
     }
@@ -49,7 +50,7 @@ function save_log($log, $root_url)
         mkdir($dir);
     }
     $fpath = $dir.'/'.md5($root_url).'.log';
-    file_put_contents($log, $root_url);
+    $rs = file_put_contents($fpath, $log);
 }
 
 function get_svn_root_url()
@@ -59,6 +60,6 @@ function get_svn_root_url()
         // svn: “.”不是工作副本
         return null;
     }
-    preg_match('/URL: .+\s*\.+: (.+)\s/', $info, $matches);
+    preg_match('/版本库根: (.+)/', $info, $matches);
     return $matches[1];
 }
