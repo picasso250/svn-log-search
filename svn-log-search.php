@@ -26,7 +26,7 @@ function search($keyword)
     $logs = explode('------------------------------------------------------------------------', $log);
     unset($logs[0]);
     unset($logs[count($logs)-1]);
-    $regex = '/'.str_replace('\\', "\\\\", $keyword).'/';
+    $regex = '/'.str_replace('/', "\\/", $keyword).'/';
     $i = 0;
     foreach ($logs as $log) {
         if (preg_match($regex, $log)) {
