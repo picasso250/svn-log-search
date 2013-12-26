@@ -13,13 +13,8 @@ function update_cache_async($root_url)
     shell_exec('svn log -v '.$root_url.' > '.get_log_file_name($root_url).' &');
 }
 
-function search($keyword)
+function search($keyword, $root_url)
 {
-    $root_url = get_svn_root_url();
-    if ($root_url === null) {
-        echo getcwd()." 不是 svn 工作副本";
-        exit();
-    }
     $log = read_log($root_url);
     $logs = explode('------------------------------------------------------------------------', $log);
     unset($logs[0]);
@@ -72,4 +67,18 @@ function get_svn_root_url()
     }
     preg_match('/版本库根: (.+)/', $info, $matches);
     return $matches[1];
+}
+
+function syntax($log, $keyword = null)
+{
+    $log = trim($log);
+    $log = preg_replace('/^(r\d+)([\s|]+)(\w+)([\s|]+)(.+?)( \| )(.+)/u', '<rev>$1</rev>$2<name>$3</name>$4<date>$5</date>$6<linenum>$7</linenum>', $log);
+    $log = preg_replace('%^\s*A\s+[/\w-.]+%m', '<file><add>$0</add></file>', $log);
+    $log = preg_replace('%^\s*M\s+[/\w-.]+%m', '<file><modify>$0</modify></file>', $log);
+    $log = preg_replace('%^\s*D\s+[/\w-.]+%m', '<file><del>$0</del></file>', $log);
+    $log = preg_replace('%^\s*[A-Z]\s+[/\w-.]+%m', '<file>$0</file>', $log);
+    $log = preg_replace('%^改变的路径.+%m', '<span>$0</span>', $log);
+    $log = str_replace(' ', '&nbsp;', $log);
+    $log = str_replace(PHP_EOL, "<br>\n", $log);
+    return "<p class=\"svn-log-entry\">$log</p>";
 }
