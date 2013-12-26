@@ -34,6 +34,12 @@
   .svn-log-entry del {
     color: #F03B3B;
   }
+  .svn-log-entry keyword {
+    background-color: #E9D220;
+    font-weight: bold;
+    border-radius: 5px;
+    color: #414141;
+  }
   </style>
 </head>
 <body>
@@ -61,7 +67,7 @@
       <ul>
         <?php foreach ($logs as $log): ?>
           <li>
-            <?php echo syntax($log) ?>
+            <?php echo syntax($log, $keywords) ?>
           </li>
         <?php endforeach ?>
       </ul>

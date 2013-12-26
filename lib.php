@@ -26,8 +26,20 @@ function search($keyword, $root_url)
 
     $ret = array();
     foreach ($logs as $log) {
-        if (stripos($log, $keyword)) {
+        if (is_string($keyword) && trim($keyword) && stripos($log, trim($keyword)) !== false) {
             $ret[] = $log;
+        }
+        if (is_array($keyword)) {
+            $keyword = array_filter($keyword, 'trim');
+            foreach ($keyword as $kw) {
+                if (stripos($log, $kw) === false) {
+                    $fail = true;
+                    break;
+                }
+            }
+            if (!isset($fail)) {
+                $ret[] = $log;
+            }
         }
     }
     return $ret;
@@ -69,7 +81,7 @@ function get_svn_root_url()
     return $matches[1];
 }
 
-function syntax($log, $keyword = null)
+function syntax($log, $keywords = null)
 {
     $log = trim($log);
     $log = preg_replace('/^(r\d+)([\s|]+)(\w+)([\s|]+)(.+?)( \| )(.+)/u', '<rev>$1</rev>$2<name>$3</name>$4<date>$5</date>$6<linenum>$7</linenum>', $log);
@@ -80,5 +92,13 @@ function syntax($log, $keyword = null)
     $log = preg_replace('%^改变的路径.+%m', '<span>$0</span>', $log);
     $log = str_replace(' ', '&nbsp;', $log);
     $log = str_replace(PHP_EOL, "<br>\n", $log);
+    if ($keywords) {
+        if (is_string($keywords)) {
+            $keywords = array($keywords);
+        }
+        foreach ($keywords as $keyword) {
+            $log = str_replace($keyword, "<keyword>$keyword</keyword>", $log);
+        }
+    }
     return "<p class=\"svn-log-entry\">$log</p>";
 }
