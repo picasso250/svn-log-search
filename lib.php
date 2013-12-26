@@ -29,20 +29,23 @@ function search($keyword, $root_url)
         if (is_string($keyword) && trim($keyword) && stripos($log, trim($keyword)) !== false) {
             $ret[] = $log;
         }
-        if (is_array($keyword)) {
-            $keyword = array_filter($keyword, 'trim');
-            foreach ($keyword as $kw) {
-                if (stripos($log, $kw) === false) {
-                    $fail = true;
-                    break;
-                }
-            }
-            if (!isset($fail)) {
-                $ret[] = $log;
-            }
+        if (is_array($keyword) && match_array($log, $keyword)) {
+            $ret[] = $log;
         }
     }
     return $ret;
+}
+
+// match all
+function match_array($str, $arr)
+{
+    $arr = array_filter($arr, 'trim');
+    foreach ($arr as $kw) {
+        if (stripos($str, $kw) === false) {
+            return false;
+        }
+    }
+    return true;
 }
 
 function read_log($root_url)
