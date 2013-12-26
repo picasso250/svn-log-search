@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>x</title>
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style type="text/css">
+  .svn-log-entry span {
+    color: #999999;
+  }
+  .svn-log-entry rev {
+    color: #914040;
+  }
+  .svn-log-entry name {
+    color: #292627;
+  }
+  .svn-log-entry date {
+    color: #897F8A;
+  }
+  .svn-log-entry linenum {
+    color: #696679;
+  }
+  .svn-log-entry file {
+    color: #aaa;
+  }
+  .svn-log-entry add {
+    color: #56B459;
+  }
+  .svn-log-entry modify {
+    color: #4C4C99;
+  }
+  .svn-log-entry del {
+    color: #F03B3B;
+  }
+  </style>
+</head>
+<body>
+  <!-- 头部 -->
+  <div id="header">
+  </div>
+  <!-- /头部 -->
+     
+  <!-- 主内容区 -->
+  <div id="section">
+    <form>
+      <div>
+        <label>
+          <input name="root_url" placeholder="svn url" value="<?php echo $root_url ?>">
+          <br>
+          <input name="keyword" placeholder="key word" value="<?php echo $keyword ?>">
+          <input type="submit">
+        </label>
+      </div>
+    </form>
+    <hr>
+    <div>
+      <?php if (isset($logs)): ?>
+      <div><?php echo count($logs) ?> Matched.</div>
+      <ul>
+        <?php foreach ($logs as $log): ?>
+          <li>
+            <?php echo syntax($log) ?>
+          </li>
+        <?php endforeach ?>
+      </ul>
+      <?php endif ?>
+    </div>
+  </div>
+  <!-- /主内容区 -->
+
+</body>
+</html>
+
+
