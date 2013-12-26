@@ -24,14 +24,18 @@ function search($keyword)
     $logs = explode('------------------------------------------------------------------------', $log);
     unset($logs[0]);
     unset($logs[count($logs)-1]);
-    $i = 0;
+
+    if (empty($keyword)) {
+        return $logs;
+    }
+
+    $ret = array();
     foreach ($logs as $log) {
         if (stripos($log, $keyword)) {
-            echo "$log\n";
-            $i++;
+            $ret[] = $log;
         }
     }
-    echo "$i matched.\n";
+    return $ret;
 }
 
 function read_log($root_url)
