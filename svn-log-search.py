@@ -20,6 +20,8 @@ def get_log(root_url):
 # match all key words
 def match_array(s, keywords):
     keywords = [kw.strip() for kw in ' '.split(keywords) if len(kw.strip()) > 0]
+    print keywords
+    return False
     for i in keywords:
         if string.find(s, keywords[i]) == -1:
             return False
@@ -30,6 +32,7 @@ def search(root_url, keyword):
     sep = '------------------------------------------------------------------------'
     logs = [log.strip() for log in sep.split(logs) if len(log.strip()) > 0]
 
+    print keyword
     keyword = keyword.strip()
     if (len(keyword) == 0):
         return logs
