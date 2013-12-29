@@ -16,6 +16,11 @@ def layout_root(root):
 
 [keyword_entry, text] = layout_root(root)
 
+def enter_key(event):
+    print 'you press enter key'
+
+keyword_entry.bind("<Return>", enter_key)
+
 root_url = 'svn://svn.fangdd.net/fdd-web'
 logs = svnlib.search_from_db(root_url, 'wangxiaochi')
 i = 0
