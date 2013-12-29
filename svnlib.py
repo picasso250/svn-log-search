@@ -112,12 +112,21 @@ def init_log_db(root_url):
 def search_from_db(root_url, keywords):
     conn = get_db_conn()
     c = conn.cursor()
-    t = ('RHAT',)
     repo_id = get_repo_id(conn, root_url)
     print repo_id
 
-    # c.execute('SELECT * FROM repo WHERE symbol=?', t)
-    # print c.fetchone()
+    def dict_factory(cursor, row):
+        d = {}
+        for idx, col in enumerate(cursor.description):
+            d[col[0]] = row[idx]
+        return d
+
+    conn.row_factory = dict_factory
+    c = conn.cursor()
+    params = (repo_id, '%'+keywords+'%')
+    c.execute('SELECT * FROM rev WHERE repo_id=? AND msg like ?', params)
+    print c.fetchall()
+    return c.fetchall()
 
 def get_log_from_db(root_url):
     conn = get_db_conn()
