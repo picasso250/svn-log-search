@@ -120,9 +120,14 @@ def search_from_db(root_url, keywords):
 
     conn.row_factory = dict_factory
     c = conn.cursor()
-    keywords = '%'+keywords+'%'
-    params = (repo_id, keywords, keywords)
-    sql = 'SELECT * FROM rev WHERE repo_id=? AND (msg like ? or author like ?) limit 500'
+    keywords = [kw.strip() for kw in keywords.split(' ') if len(kw.strip()) > 0]
+    like_expr = []
+    params = [repo_id]
+    for kw in keywords:
+        like_expr.append('(msg LIKE ? OR author LIKE ?)')
+        params.append('%'+kw+'%')
+        params.append('%'+kw+'%')
+    sql = 'SELECT * FROM rev WHERE repo_id=? AND ('+' AND '.join(like_expr)+') limit 500'
     c.execute(sql, params)
     logs = c.fetchall()
     for log in logs:
