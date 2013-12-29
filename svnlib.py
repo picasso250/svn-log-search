@@ -3,6 +3,12 @@ import contextlib
 import urllib
 import os
 import sqlite3
+import re
+
+def get_svn_root_url():
+    info = subprocess.check_output(["svn", "info"])
+    m = re.search('Repository Root: (.+)', info)
+    return m.group(1)
 
 def get_log_path(root_url):
     d = os.path.dirname(os.path.realpath(__file__)) + '/log'
@@ -62,13 +68,15 @@ def get_db_conn():
 
 def init_log_db(root_url):
     log_xml = get_log_xml(root_url)
-    print log_xml
 
     conn = get_db_conn()
 
     repo_id = get_repo_id(conn, root_url)
 
     c = conn.cursor()
+
+    c.execute('DELETE FROM rev');
+    c.execute('DELETE FROM changed_path');
 
     from xml.dom import minidom
     xmldoc = minidom.parseString(log_xml)
