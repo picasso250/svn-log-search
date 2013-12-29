@@ -46,7 +46,7 @@ def get_log_xml(root_url):
     return subprocess.check_output(["svn", "log" , "--xml", "-v", root_url])
 
 def get_db_file_name():
-    return 'svnlog.db'
+    return os.path.dirname(os.path.realpath(__file__)) + '/svnlog.db'
 
 def get_repo_id(conn, repo):
     c = conn.cursor()
@@ -75,19 +75,17 @@ def init_log_db(root_url):
 
     c = conn.cursor()
 
-    c.execute('DELETE FROM rev');
-    c.execute('DELETE FROM changed_path');
+    c.execute('DELETE FROM rev')
+    c.execute('DELETE FROM changed_path')
 
     from xml.dom import minidom
     xmldoc = minidom.parseString(log_xml)
     entrylist = xmldoc.getElementsByTagName('logentry') 
     for entry in entrylist:
         revision = entry.attributes['revision'].value
-        print revision
+        # print revision
         author = entry.getElementsByTagName('author')[0].firstChild.nodeValue
-        print author
         date = entry.getElementsByTagName('date')[0].firstChild.nodeValue
-        print date
         msg = entry.getElementsByTagName('msg')[0].firstChild.nodeValue
 
         params = (repo_id, revision, author, date, msg)
@@ -100,14 +98,8 @@ def init_log_db(root_url):
             text = path.attributes['text-mods'].value
             kind = path.attributes['kind'].value
             filepath = path.firstChild.nodeValue
-            print action
-            print prop
-            print text
-            print kind
-            print filepath
             params = (revision, action, prop, text, kind, filepath)
             c.execute('INSERT INTO changed_path (rev, text_mods, kind, action, prop_mods, file_path) VALUES (?,?,?,?,?,?)', params)
-    print len(entrylist)
 
     conn.commit()
 
