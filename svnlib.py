@@ -44,11 +44,17 @@ def get_db_file_name():
 
 def get_repo_id(conn, repo):
     c = conn.cursor()
+    print 'search repo', repo
     t = (repo,)
     c.execute('SELECT id FROM repo WHERE url=?', t)
     repo_id = c.fetchone()
-    print repo_id
-    return repo_id
+    if repo_id is None:
+        print 'add', repo
+        c.execute('INSERT INTO repo (url) VALUES (?)', t)
+        conn.commit()
+        return c.lastrowid
+    else:
+        return repo_id[0]
 
 def get_db_conn():
     db_file = get_db_file_name()
@@ -76,9 +82,10 @@ def init_log_db(root_url):
         print author
         date = entry.getElementsByTagName('date')[0].firstChild.nodeValue
         print date
+        msg = entry.getElementsByTagName('msg')[0].firstChild.nodeValue
 
-        params = (repo_id, revision, author, date)
-        c.execute('INSERT INTO rev (repo_id, rev, author, commit_date) VALUES (?,?,?,?)', params)
+        params = (repo_id, revision, author, date, msg)
+        c.execute('INSERT INTO rev (repo_id, rev, author, commit_date, msg) VALUES (?,?,?,?,?)', params)
 
         paths = entry.getElementsByTagName('path')
         for path in paths:
@@ -101,6 +108,16 @@ def init_log_db(root_url):
     # We can also close the connection if we are done with it.
     # Just be sure any changes have been committed or they will be lost.
     conn.close()
+
+def search_from_db(root_url, keywords):
+    conn = get_db_conn()
+    c = conn.cursor()
+    t = ('RHAT',)
+    repo_id = get_repo_id(conn, root_url)
+    print repo_id
+
+    # c.execute('SELECT * FROM repo WHERE symbol=?', t)
+    # print c.fetchone()
 
 def get_log_from_db(root_url):
     conn = get_db_conn()
