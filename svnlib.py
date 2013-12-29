@@ -122,7 +122,7 @@ def search_from_db(root_url, keywords):
     c = conn.cursor()
     keywords = '%'+keywords+'%'
     params = (repo_id, keywords, keywords)
-    sql = 'SELECT * FROM rev WHERE repo_id=? AND (msg like ? or author like ?)'
+    sql = 'SELECT * FROM rev WHERE repo_id=? AND (msg like ? or author like ?) limit 500'
     c.execute(sql, params)
     logs = c.fetchall()
     for log in logs:
@@ -153,10 +153,12 @@ def creat_tables(db_file):
                  (id INTEGER PRIMARY KEY AUTOINCREMENT, url text)''')
     # Create rev table
     c.execute('''CREATE TABLE rev
-                 (repo_id INTEGER, rev INTEGER, author text, commit_date text, line_num text, msg text)''')
+                 (rev INTEGER PRIMARY KEY, repo_id INTEGER, author text, commit_date text, line_num text, msg text)''')
+    c.execute('CREATE INDEX rev_reop_idx ON rev(repo_id)')
     # Create changed_path table
     c.execute('''CREATE TABLE changed_path
-                 (rev INTEGER, text_mods INTEGER, kind text, action text, prop_mods INTEGER, file_path text)''')
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, rev INTEGER, text_mods INTEGER, kind text, action text, prop_mods INTEGER, file_path text)''')
+    c.execute('CREATE INDEX path_rev_idx ON changed_path(rev)')
 
     # Save (commit) the changes
     conn.commit()
