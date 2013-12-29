@@ -99,7 +99,7 @@ def init_log_db(root_url):
             kind = path.attributes['kind'].value
             filepath = path.firstChild.nodeValue
             params = (revision, action, prop, text, kind, filepath)
-            c.execute('INSERT INTO changed_path (rev, text_mods, kind, action, prop_mods, file_path) VALUES (?,?,?,?,?,?)', params)
+            c.execute('INSERT INTO changed_path (rev, action, prop_mods, text_mods, kind, file_path) VALUES (?,?,?,?,?,?)', params)
 
     conn.commit()
 
@@ -124,7 +124,13 @@ def search_from_db(root_url, keywords):
     params = (repo_id, keywords, keywords)
     sql = 'SELECT * FROM rev WHERE repo_id=? AND (msg like ? or author like ?)'
     c.execute(sql, params)
-    return c.fetchall()
+    logs = c.fetchall()
+    for log in logs:
+        params = (log['rev'],)
+        sql = 'SELECT * FROM changed_path WHERE rev=?'
+        c.execute(sql, params)
+        log['paths'] = c.fetchall()
+    return logs
 
 def get_log_from_db(root_url):
     conn = get_db_conn()

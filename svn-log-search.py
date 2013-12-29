@@ -21,10 +21,15 @@ def enter_key(event):
     root_url = 'svn://svn.fangdd.net/fdd-web'
     logs = svnlib.search_from_db(root_url, keyword.get())
     text.delete("1.0", "end-1c")
+    if logs is None:
+        print 0
+        return
     i = 0
     for log in logs:
         line = ' | '.join(['r'+str(log['rev']), log['author'], log['commit_date']])
-        lines = '\n'.join([line, log['msg']])
+        files = [f['action']+' '+f['file_path'] for f in log['paths']]
+        lines = '\n'.join([line, '\n'+'\n'.join(files), '\n\t'+log['msg']])
+
         text.insert(Tkinter.END, lines+'\n\n')
     print len(logs)
 
