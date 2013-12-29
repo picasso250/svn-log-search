@@ -36,14 +36,68 @@ def search(root_url, keyword):
     return [log for log in logs if match_array(log, keyword) == True ]
 
 def get_log_xml(root_url):
-    return subprocess.check_output(["svn", "log" , "--xml", "-v", root_url])
+    return subprocess.check_output(["svn", "log" , "--xml", "-vl", "1", root_url])
+
+def get_db_file_name():
+    return 'svnlog.db'
+
+def get_repo_id(conn, repo):
+    c = conn.cursor()
+    t = (repo,)
+    c.execute('SELECT id FROM repo WHERE url=?', t)
+    repo_id = c.fetchone()
+    print repo_id
+    return repo_id
 
 def init_log_db(root_url):
-    xml = get_log_xml(root_url)
-    print xml
+    log_xml = get_log_xml(root_url)
+    print log_xml
+
+    db_file = get_db_file_name()
+    conn = sqlite3.connect(db_file)
+
+    repo_id = get_repo_id(conn, root_url)
+
+    c = conn.cursor()
+
+    from xml.dom import minidom
+    xmldoc = minidom.parseString(log_xml)
+    entrylist = xmldoc.getElementsByTagName('logentry') 
+    for entry in entrylist:
+        revision = entry.attributes['revision'].value
+        print revision
+        author = entry.getElementsByTagName('author')[0].firstChild.nodeValue
+        print author
+        date = entry.getElementsByTagName('date')[0].firstChild.nodeValue
+        print date
+
+        params = (repo_id, revision, author, date)
+        c.execute('INSERT INTO rev (repo_id, rev, author, commit_date) VALUES (?,?,?)', params)
+
+        paths = entry.getElementsByTagName('path')
+        for path in paths:
+            action =path.attributes['action'].value
+            prop = path.attributes['prop-mods'].value
+            text = path.attributes['text-mods'].value
+            kind = path.attributes['kind'].value
+            filepath = path.firstChild.nodeValue
+            print action
+            print prop
+            print text
+            print kind
+            print filepath
+            params = (revision, action, prop, text, kind, filepath)
+            c.execute('INSERT INTO changed_path (rev, text_mods, kind, action, prop_mods, file_path) VALUES (?,?,?,?,?,?)', params)
+    print len(entrylist)
+
+    conn.commit()
+
+    # We can also close the connection if we are done with it.
+    # Just be sure any changes have been committed or they will be lost.
+    conn.close()
 
 def get_log_from_db(root_url):
-    db_file = 'svnlog.db'
+    db_file = get_db_file_name()
     if not os.path.isfile(db_file):
         creat_tables(db_file)
     conn = sqlite3.connect(db_file)
@@ -63,13 +117,13 @@ def creat_tables(db_file):
 
     # Create repo table
     c.execute('''CREATE TABLE repo
-                 (id int, url text)''')
+                 (id int primary key autoincrement, url text)''')
     # Create rev table
     c.execute('''CREATE TABLE rev
-                 (id int, repo_id int, rev int, author text, commit_date text, line_num text, msg text)''')
+                 (repo_id int, rev int, author text, commit_date text, line_num text, msg text)''')
     # Create changed_path table
     c.execute('''CREATE TABLE changed_path
-                 (id int, rev_id int, text_mods int, kind text, action text, prop_mods int, file_path text)''')
+                 (rev int, text_mods int, kind text, action text, prop_mods int, file_path text)''')
 
     # Save (commit) the changes
     conn.commit()
