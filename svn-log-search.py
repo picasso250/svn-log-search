@@ -19,25 +19,24 @@ def get_log(root_url):
 
 # match all key words
 def match_array(s, keywords):
-    keywords = [kw.strip() for kw in ' '.split(keywords) if len(kw.strip()) > 0]
-    print keywords
-    return False
-    for i in keywords:
-        if string.find(s, keywords[i]) == -1:
+    keywords = [kw.strip() for kw in keywords.split(' ') if len(kw.strip()) > 0]
+    for kw in keywords:
+        if s.find(kw) == -1:
             return False
     return True
 
 def search(root_url, keyword):
-    log = get_log(root_url)
+    logs = get_log(root_url)
     sep = '------------------------------------------------------------------------'
-    logs = [log.strip() for log in sep.split(logs) if len(log.strip()) > 0]
+    logs = [log.strip() for log in logs.split(sep) if len(log.strip()) > 0]
 
-    print keyword
     keyword = keyword.strip()
     if (len(keyword) == 0):
         return logs
     return [log for log in logs if match_array(log, keyword) == True ]
 
 root_url = 'svn://svn.fangdd.net/fdd-web'
-print get_log(root_url)
-
+logs = search(root_url, 'wangxiaochi')
+for log in logs:
+    print log
+print len(logs)
