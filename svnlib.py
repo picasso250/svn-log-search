@@ -124,10 +124,15 @@ def search_from_db(root_url, keywords):
     like_expr = []
     params = [repo_id]
     for kw in keywords:
-        like_expr.append('(msg LIKE ? OR author LIKE ?)')
+        like_expr.append('(rev.msg LIKE ? OR rev.author LIKE ? OR c.file_path LIKE ?)')
         params.append('%'+kw+'%')
         params.append('%'+kw+'%')
-    sql = 'SELECT * FROM rev WHERE repo_id=? AND ('+' AND '.join(like_expr)+') limit 500'
+        params.append('%'+kw+'%')
+    sql = 'SELECT rev.* FROM rev '
+    sql += 'JOIN changed_path AS c ON c.rev=rev.rev '
+    sql += 'WHERE rev.repo_id=? AND ('+' AND '.join(like_expr)+') '
+    sql += 'GROUP BY rev.rev '
+    sql += 'ORDER BY rev DESC LIMIT 500'
     c.execute(sql, params)
     logs = c.fetchall()
     for log in logs:
