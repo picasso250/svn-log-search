@@ -49,12 +49,17 @@ def get_repo_id(conn, repo):
     print repo_id
     return repo_id
 
+def get_db_conn():
+    db_file = get_db_file_name()
+    if not os.path.isfile(db_file):
+        creat_tables(db_file)
+    return sqlite3.connect(db_file)
+
 def init_log_db(root_url):
     log_xml = get_log_xml(root_url)
     print log_xml
 
-    db_file = get_db_file_name()
-    conn = sqlite3.connect(db_file)
+    conn = get_db_conn()
 
     repo_id = get_repo_id(conn, root_url)
 
@@ -97,10 +102,7 @@ def init_log_db(root_url):
     conn.close()
 
 def get_log_from_db(root_url):
-    db_file = get_db_file_name()
-    if not os.path.isfile(db_file):
-        creat_tables(db_file)
-    conn = sqlite3.connect(db_file)
+    conn = get_db_conn()
 
     c = conn.cursor()
 
