@@ -27,7 +27,7 @@ def enter_key(event):
     i = 0
     for log in logs:
         line = ' | '.join(['r'+str(log['rev']), log['author'], log['commit_date']])
-        files = [f['action']+' '+f['file_path'] for f in log['paths']]
+        files = [' '+f['action']+' '+f['file_path'] for f in log['paths']]
         lines = '\n'.join([line, '\n'+'\n'.join(files), '\n\t'+log['msg']])
 
         text.insert(Tkinter.END, lines+'\n\n')
