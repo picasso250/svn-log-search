@@ -37,19 +37,17 @@ def search(root_url, keyword):
     return [log for log in logs if match_array(log, keyword) == True ]
 
 def get_log_xml(root_url):
-    return subprocess.check_output(["svn", "log" , "--xml", "-vl", "1", root_url])
+    return subprocess.check_output(["svn", "log" , "--xml", "-v", root_url])
 
 def get_db_file_name():
     return 'svnlog.db'
 
 def get_repo_id(conn, repo):
     c = conn.cursor()
-    print 'search repo', repo
     t = (repo,)
     c.execute('SELECT id FROM repo WHERE url=?', t)
     repo_id = c.fetchone()
     if repo_id is None:
-        print 'add', repo
         c.execute('INSERT INTO repo (url) VALUES (?)', t)
         conn.commit()
         return c.lastrowid
@@ -113,7 +111,6 @@ def search_from_db(root_url, keywords):
     conn = get_db_conn()
     c = conn.cursor()
     repo_id = get_repo_id(conn, root_url)
-    print repo_id
 
     def dict_factory(cursor, row):
         d = {}
@@ -123,9 +120,10 @@ def search_from_db(root_url, keywords):
 
     conn.row_factory = dict_factory
     c = conn.cursor()
-    params = (repo_id, '%'+keywords+'%')
-    c.execute('SELECT * FROM rev WHERE repo_id=? AND msg like ?', params)
-    print c.fetchall()
+    keywords = '%'+keywords+'%'
+    params = (repo_id, keywords, keywords)
+    sql = 'SELECT * FROM rev WHERE repo_id=? AND (msg like ? or author like ?)'
+    c.execute(sql, params)
     return c.fetchall()
 
 def get_log_from_db(root_url):
