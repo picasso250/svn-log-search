@@ -2,6 +2,7 @@ import subprocess
 import contextlib
 import urllib
 import os
+import sqlite3
 
 def get_log_path(root_url):
     d = os.path.dirname(os.path.realpath(__file__)) + '/log'
@@ -77,7 +78,7 @@ def init_log_db(root_url):
         print date
 
         params = (repo_id, revision, author, date)
-        c.execute('INSERT INTO rev (repo_id, rev, author, commit_date) VALUES (?,?,?)', params)
+        c.execute('INSERT INTO rev (repo_id, rev, author, commit_date) VALUES (?,?,?,?)', params)
 
         paths = entry.getElementsByTagName('path')
         for path in paths:
@@ -119,13 +120,13 @@ def creat_tables(db_file):
 
     # Create repo table
     c.execute('''CREATE TABLE repo
-                 (id int primary key autoincrement, url text)''')
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, url text)''')
     # Create rev table
     c.execute('''CREATE TABLE rev
-                 (repo_id int, rev int, author text, commit_date text, line_num text, msg text)''')
+                 (repo_id INTEGER, rev INTEGER, author text, commit_date text, line_num text, msg text)''')
     # Create changed_path table
     c.execute('''CREATE TABLE changed_path
-                 (rev int, text_mods int, kind text, action text, prop_mods int, file_path text)''')
+                 (rev INTEGER, text_mods INTEGER, kind text, action text, prop_mods INTEGER, file_path text)''')
 
     # Save (commit) the changes
     conn.commit()
