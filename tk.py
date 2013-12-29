@@ -6,30 +6,31 @@ import svnlib
 root = Tkinter.Tk()
 
 def layout_root(root):
-    keyword_entry = Tkinter.Entry(root)
+    keyword = Tkinter.StringVar()
+    keyword_entry = Tkinter.Entry(root, textvariable=keyword)
     keyword_entry.pack(side = Tkinter.TOP)
 
     text = Tkinter.Text(root)
     text.pack(side = Tkinter.BOTTOM)
 
-    return [keyword_entry, text]
+    return [keyword, keyword_entry, text]
 
-[keyword_entry, text] = layout_root(root)
+[keyword, keyword_entry, text] = layout_root(root)
 
 def enter_key(event):
-    print 'you press enter key'
+    root_url = 'svn://svn.fangdd.net/fdd-web'
+    print 'search', keyword.get()
+    logs = svnlib.search_from_db(root_url, keyword.get())
+    i = 0
+    for log in logs:
+        print log
+        line = ' | '.join(['r'+str(log['rev']), log['author'], log['commit_date']])
+        lines = '\n'.join([line, log['msg']])
+        text.insert(Tkinter.END, lines+'\n\n')
+    print len(logs)
 
 keyword_entry.bind("<Return>", enter_key)
 
-root_url = 'svn://svn.fangdd.net/fdd-web'
-logs = svnlib.search_from_db(root_url, 'wangxiaochi')
-i = 0
-for log in logs:
-    print log
-    line = ' | '.join(['r'+str(log['rev']), log['author'], log['commit_date']])
-    lines = '\n'.join([line, log['msg']])
-    text.insert(Tkinter.END, lines+'\n\n')
-print len(logs)
 
 text.tag_add("here", "1.0", "1.2")
 text.tag_add("start", "1.8", "1.13")
