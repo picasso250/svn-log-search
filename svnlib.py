@@ -34,3 +34,46 @@ def search(root_url, keyword):
     if (len(keyword) == 0):
         return logs
     return [log for log in logs if match_array(log, keyword) == True ]
+
+def get_log_xml(root_url):
+    return subprocess.check_output(["svn", "log" , "--xml", "-v", root_url])
+
+def init_log_db(root_url):
+    xml = get_log_xml(root_url)
+    print xml
+
+def get_log_from_db(root_url):
+    db_file = 'svnlog.db'
+    if not os.path.isfile(db_file):
+        creat_tables(db_file)
+    conn = sqlite3.connect(db_file)
+
+    c = conn.cursor()
+
+    t = (root_url,)
+    c.execute('SELECT * FROM repo WHERE url=?', t)
+
+    conn.close()
+
+    return c.fetchall()
+
+def creat_tables(db_file):
+    conn = sqlite3.connect(db_file)
+    c = conn.cursor()
+
+    # Create repo table
+    c.execute('''CREATE TABLE repo
+                 (id int, url text)''')
+    # Create rev table
+    c.execute('''CREATE TABLE rev
+                 (id int, repo_id int, rev int, author text, commit_date text, line_num text, msg text)''')
+    # Create changed_path table
+    c.execute('''CREATE TABLE changed_path
+                 (id int, rev_id int, text_mods int, kind text, action text, prop_mods int, file_path text)''')
+
+    # Save (commit) the changes
+    conn.commit()
+
+    # We can also close the connection if we are done with it.
+    # Just be sure any changes have been committed or they will be lost.
+    conn.close()
