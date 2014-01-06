@@ -5,6 +5,11 @@ import os
 import sqlite3
 import re
 
+def get_svn_url():
+    info = subprocess.check_output(["svn", "info"])
+    m = re.search('URL: (.+)', info)
+    return m.group(1)
+
 def get_svn_root_url():
     info = subprocess.check_output(["svn", "info"])
     m = re.search('Repository Root: (.+)', info)
@@ -107,7 +112,7 @@ def init_log_db(root_url):
     # Just be sure any changes have been committed or they will be lost.
     conn.close()
 
-def search_from_db(root_url, keywords):
+def search_from_db(root_url, keywords = None):
     conn = get_db_conn()
     c = conn.cursor()
     repo_id = get_repo_id(conn, root_url)
@@ -120,17 +125,22 @@ def search_from_db(root_url, keywords):
 
     conn.row_factory = dict_factory
     c = conn.cursor()
-    keywords = [kw.strip() for kw in keywords.split(' ') if len(kw.strip()) > 0]
-    like_expr = []
+
     params = [repo_id]
-    for kw in keywords:
-        like_expr.append('(rev.msg LIKE ? OR rev.author LIKE ? OR c.file_path LIKE ?)')
-        params.append('%'+kw+'%')
-        params.append('%'+kw+'%')
-        params.append('%'+kw+'%')
+    if keywords is None or len(keywords) == 0:
+        like_expr = ''
+    else:
+        keywords = [kw.strip() for kw in keywords.split(' ') if len(kw.strip()) > 0]
+        like_expr = []
+        for kw in keywords:
+            like_expr.append('(rev.msg LIKE ? OR rev.author LIKE ? OR c.file_path LIKE ?)')
+            params.append('%'+kw+'%')
+            params.append('%'+kw+'%')
+            params.append('%'+kw+'%')
+        like_expr = 'AND ('+' AND '.join(like_expr)+') '
     sql = 'SELECT rev.* FROM rev '
     sql += 'JOIN changed_path AS c ON c.rev=rev.rev '
-    sql += 'WHERE rev.repo_id=? AND ('+' AND '.join(like_expr)+') '
+    sql += 'WHERE rev.repo_id=? '+like_expr
     sql += 'GROUP BY rev.rev '
     sql += 'ORDER BY rev DESC LIMIT 500'
     c.execute(sql, params)
