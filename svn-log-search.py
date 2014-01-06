@@ -3,6 +3,11 @@
 import Tkinter # sudo apt-get install python-tk
 import svnlib
 
+url = svnlib.get_svn_url()
+print 'update cache', url, '...'
+svnlib.init_log_db(url)
+print 'ok.'
+
 root = Tkinter.Tk()
 
 def layout_root(root):
@@ -18,8 +23,10 @@ def layout_root(root):
 [keyword, keyword_entry, text] = layout_root(root)
 
 def enter_key(event):
-    root_url = 'svn://svn.fangdd.net/fdd-web'
-    logs = svnlib.search_from_db(root_url, keyword.get())
+    logs = svnlib.search_from_db(url, keyword.get())
+    set_logs(logs)
+
+def set_logs(logs):
     text.delete("1.0", "end-1c")
     if logs is None:
         print 0
@@ -34,6 +41,9 @@ def enter_key(event):
     print len(logs)
 
 keyword_entry.bind("<Return>", enter_key)
+
+logs = svnlib.search_from_db(url, '')
+set_logs(logs)
 
 # text.tag_add("here", "1.0", "1.2")
 # text.tag_add("start", "1.8", "1.13")
