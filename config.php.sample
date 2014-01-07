@@ -1,5 +1,12 @@
 <?php
 
 return array(
-    'http://txt2tags.googlecode.com/svn/trunk/',
+    'repos' => array(
+        'http://txt2tags.googlecode.com/svn/trunk/',
+    ),
+    'dsn' => 'mysql:host=localhost;dbname=svn',
+    'db_config' => array(
+        'username' => 'root',
+        'password' => '',
+    )
 );
