@@ -179,6 +179,23 @@ function get_log_file_name($root_url)
     return $fpath;
 }
 
+function get_diff($root_url, $file_path, $revision)
+{
+    $diffOrm = ORM::forTable('diff');
+    $entry = $diffOrm
+        ->join('repo', array('repo.id', '=', 'diff.repo_id'))
+        ->whereEqual('repo.repo', $root_url)
+        ->whereEqual('diff.rev', $revision)
+        ->whereEqual('diff.file', $file_path)
+        ->findOne();
+    if (empty($entry)) {
+        // repo get
+        // svn diff get
+        $entry = $diffOrm->create();
+        $entry->save();
+    }
+}
+
 function get_svn_root_url()
 {
     $info = shell_exec('svn info');
