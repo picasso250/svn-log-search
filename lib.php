@@ -2,14 +2,12 @@
 
 function update_cache($root_url)
 {
-    echo "update cache, please wait ...\n";
     $log = shell_exec('svn log -v '.$root_url);
     save_log($log, $root_url);
 }
 
 function update_cache_async($root_url)
 {
-    echo "update cache, please wait ...\n";
     shell_exec('svn log -v '.$root_url.' > '.get_log_file_name($root_url).' &');
 }
 
