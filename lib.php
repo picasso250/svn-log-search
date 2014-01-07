@@ -54,7 +54,13 @@ function init_svn_log_db($root_url)
         $rev = $revOrm->create();
         $rev->rev = $revision;
         $rev->repo_id = $repo->id;
-        $rev->author = $value->getElementsByTagName('author')->item(0)->nodeValue;
+        $author = $value->getElementsByTagName('author')->item(0);
+        if (empty($author)) {
+            echo "author is empty\n";
+            $rev->author = '';
+        } else {
+            $rev->author = $author->nodeValue;
+        }
         $rev->commit_date = $value->getElementsByTagName('date')->item(0)->nodeValue;
         $rev->msg = $value->getElementsByTagName('msg')->item(0)->nodeValue;
         $rev->save();
