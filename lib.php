@@ -8,6 +8,13 @@ function update_cache($root_url)
 
 function init_svn_log_db($root_url)
 {
+    $repo = $repoOrm->whereEqual('url', $root_url)->findOne();
+    if (empty($repo)) {
+        $repo = $repoOrm->create();
+        $repo->url = $root_url;
+        $repo->save();
+    }
+
     $command = 'svn log --xml -v '.$root_url;
     $command = 'svn log --xml -vl 1 '.$root_url;
     $log = shell_exec($command);
@@ -24,6 +31,7 @@ function init_svn_log_db($root_url)
         
         $rev = $revOrm->create();
         $rev->rev = $revision;
+        $rev->repo_id = $repo->id;
         $rev->author = $value->getElementsByTagName('author')->item(0)->nodeValue;
         $rev->date = $value->getElementsByTagName('date')->item(0)->nodeValue;
         $rev->msg = $value->getElementsByTagName('msg')->item(0)->nodeValue;
@@ -32,7 +40,7 @@ function init_svn_log_db($root_url)
         foreach ($files as $key => $value) {
             $f = $fileOrm->create();
             $f->rev = $rev->rev;
-            $f->file = $value->nodeValue;
+            $f->file_path = $value->nodeValue;
             $f->action = $value->getAttribute('action');
             $f->prop_mods = $value->getAttribute('prop-mods');
             $f->text_mods = $value->getAttribute('text-mods');
@@ -68,6 +76,36 @@ function search($keyword, $root_url)
         }
     }
     return $ret;
+}
+
+function search_db($keyword, $root_url)
+{
+    $keyword = trim($keyword);
+    $revOrm
+        ->join('repo', array('rev.repo_id', '=', 'repo.id'))
+        ->join('changed_file', array('f.rev', '=', 'rev.rev'), 'f')
+        ->select('rev.*')
+        ->limit(500);
+
+    if (!empty($keyword)) {
+        return $repoOrm->findMany();
+    }
+    $keywords = array_map('trim', array_filter(implode(' ', $keyword), 'trim'));
+    if (empty($keywords)) {
+        return $repoOrm->findMany();
+    }
+    $whereExpr = array();
+    $values = array();
+    foreach ($keywords as $kw) {
+        $whereExpr[] = '(rev.rev=? OR rev.author LIKE ? OR rev.commit_date LIKE ? OR rev.msg LIKE ? OR f.file_path LIKE ?)';
+        $values[] = $kw;
+        $values[] = "%$kw%";
+        $values[] = "%$kw%";
+        $values[] = "%$kw%";
+        $values[] = "%$kw%";
+    }
+    $revOrm->whereRaw(implode(' AND ', $whereExpr), $values);
+    return $repoOrm->findMany();
 }
 
 // match all
