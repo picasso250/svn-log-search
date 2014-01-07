@@ -1,7 +1,5 @@
 <?php
 
-require_once 'lib.php';
-
 class SvnUpdateLogJob
 {
     public function perform()
