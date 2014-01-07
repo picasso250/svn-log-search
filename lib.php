@@ -8,35 +8,38 @@ function update_cache($root_url)
 
 function init_svn_log_db($root_url)
 {
-    $repo = $repoOrm->whereEqual('url', $root_url)->findOne();
+    $repoOrm = ORM::forTable('repo');
+    $revOrm = ORM::forTable('rev');
+    $fileOrm = ORM::forTable('changed_path');
+
+    $repo = $repoOrm->whereEqual('repo', $root_url)->findOne();
     if (empty($repo)) {
         $repo = $repoOrm->create();
-        $repo->url = $root_url;
+        $repo->repo = $root_url;
         $repo->save();
     }
 
     $command = 'svn log --xml -v '.$root_url;
-    $command = 'svn log --xml -vl 1 '.$root_url;
     $log = shell_exec($command);
-    echo "$log\n";
     $doc = new DOMDocument();
     $doc->loadXML($log);
     $entrylist = $doc->getElementsByTagName('logentry');
     foreach ($entrylist as $key => $value) {
         $revision = $value->getAttribute('revision');
+        echo "save $revision\n";
 
         // todo we need to diff and ...
-        $revOrm->whereEqual('rev', $revision)->deleteMany();
-        $fileOrm->whereEqual('rev', $revision)->deleteMany();
+        ORM::forTable('rev')->whereEqual('rev', $revision)->deleteMany();
+        ORM::forTable('changed_path')->whereEqual('rev', $revision)->deleteMany();
         
         $rev = $revOrm->create();
         $rev->rev = $revision;
         $rev->repo_id = $repo->id;
         $rev->author = $value->getElementsByTagName('author')->item(0)->nodeValue;
-        $rev->date = $value->getElementsByTagName('date')->item(0)->nodeValue;
+        $rev->commit_date = $value->getElementsByTagName('date')->item(0)->nodeValue;
         $rev->msg = $value->getElementsByTagName('msg')->item(0)->nodeValue;
-        $rev->files = $value->getElementsByTagName('path');
         $rev->save();
+        $files = $value->getElementsByTagName('path');
         foreach ($files as $key => $value) {
             $f = $fileOrm->create();
             $f->rev = $rev->rev;
@@ -80,19 +83,25 @@ function search($keyword, $root_url)
 
 function search_db($keyword, $root_url)
 {
-    $keyword = trim($keyword);
+    $revOrm = ORM::forTable('rev');
     $revOrm
         ->join('repo', array('rev.repo_id', '=', 'repo.id'))
-        ->join('changed_file', array('f.rev', '=', 'rev.rev'), 'f')
+        ->join('changed_path', array('f.rev', '=', 'rev.rev'), 'f')
         ->select('rev.*')
         ->limit(500);
 
-    if (!empty($keyword)) {
-        return $repoOrm->findMany();
+    if (is_string($keyword)) {
+        $keyword = trim($keyword);
+        if (empty($keyword)) {
+            return $revOrm->findMany();
+        }
+        $keywords = implode(' ', $keyword);
+    } else {
+        $keywords = $keyword;
     }
-    $keywords = array_map('trim', array_filter(implode(' ', $keyword), 'trim'));
+    $keywords = array_map('trim', array_filter($keywords, 'trim'));
     if (empty($keywords)) {
-        return $repoOrm->findMany();
+        return $revOrm->findMany();
     }
     $whereExpr = array();
     $values = array();
