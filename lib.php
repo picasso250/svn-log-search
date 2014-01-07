@@ -26,12 +26,17 @@ function init_svn_log_db($root_url)
     $entrylist = $doc->getElementsByTagName('logentry');
     foreach ($entrylist as $key => $value) {
         $revision = $value->getAttribute('revision');
-        echo "save $revision\n";
 
-        // todo we need to diff and ...
+        if (ORM::forTable('rev')->whereEqual('rev', $revision)->findOne()) {
+            echo "skip $revision\n";
+            continue;
+        }
+
         ORM::forTable('rev')->whereEqual('rev', $revision)->deleteMany();
         ORM::forTable('changed_path')->whereEqual('rev', $revision)->deleteMany();
-        
+
+        echo "save $revision\n";
+
         $rev = $revOrm->create();
         $rev->rev = $revision;
         $rev->repo_id = $repo->id;
