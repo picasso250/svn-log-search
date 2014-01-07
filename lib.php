@@ -6,6 +6,11 @@ function update_cache($root_url)
     save_log($log, $root_url);
 }
 
+function update_svn_log_db($root_url)
+{
+    return init_svn_log_db($root_url);
+}
+
 function init_svn_log_db($root_url)
 {
     $repoOrm = ORM::forTable('repo');
@@ -19,7 +24,16 @@ function init_svn_log_db($root_url)
         $repo->save();
     }
 
-    $command = 'svn log --xml -v '.$root_url;
+    $command = 'svn log --xml -v ';
+    $maxRev = ORM::forTable('rev')
+        ->selectExpr('MAX(rev) as mr')
+        ->whereEqual('repo_id', $repo->id)
+        ->findOne()->mr;
+    if ($maxRev && $maxRev > 0) {
+        $command .= '-r '.$maxRev.':HEAD ';
+    }
+    $command .= $root_url;
+    echo "$command\n";
     $log = shell_exec($command);
     $doc = new DOMDocument();
     $doc->loadXML($log);
