@@ -5,7 +5,8 @@ require 'lib.php';
 require 'SvnUpdateLogJob.php';
 $config = include 'config.php';
 
-$root_url = $config[0];
+$repo = isset($_GET['repo']) ? $_GET['repo'] : 0;
+$root_url = $config['repos'][$repo];
 
 $fpath = get_log_file_name($root_url);
 if (!file_exists($fpath)) {
