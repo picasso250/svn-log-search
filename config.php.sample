@@ -1,0 +1,5 @@
+<?php
+
+return array(
+    'http://txt2tags.googlecode.com/svn/trunk/',
+);
