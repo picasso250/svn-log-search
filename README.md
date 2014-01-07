@@ -1,7 +1,7 @@
 svn
 ===============
 
-cron every 30min update
+cron every 30min update, no, use resque!
 
 parse xml to sql
 
