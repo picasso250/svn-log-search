@@ -1,7 +1,9 @@
 svn
 ===============
 
-cron every 30min update, no, use resque!
+```bash
+QUEUE=default php worker.php
+```
 
 parse xml to sql
 
