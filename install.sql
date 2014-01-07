@@ -38,3 +38,26 @@ CREATE TABLE `rev` (
   `msg` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY (`rev`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+delimiter $$
+
+CREATE TABLE `diff` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `repo_id` int(10) unsigned DEFAULT NULL,
+  `rev` int(10) unsigned DEFAULT NULL,
+  `file` varchar(255) DEFAULT NULL,
+  `diff` blob,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
+
+delimiter $$
+
+CREATE TABLE `blame` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `repo_id` int(10) unsigned DEFAULT NULL,
+  `rev` int(10) unsigned DEFAULT NULL,
+  `file` varchar(255) DEFAULT NULL,
+  `blame` blob,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
+
