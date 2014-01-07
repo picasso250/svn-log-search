@@ -119,7 +119,7 @@ function search_db($keyword, $root_url)
         $values[] = "%$kw%";
     }
     $revOrm->whereRaw(implode(' AND ', $whereExpr), $values);
-    return $repoOrm->findMany();
+    return $revOrm->findMany();
 }
 
 // match all
