@@ -4,7 +4,8 @@ class SvnUpdateLogJob
 {
     public function perform()
     {
-        echo $this->args['url'],"\n";
+        echo "update log of ",$this->args['url']," ... ";
         update_cache($this->args['url']);
+        echo "ok\n";
     }
 }
