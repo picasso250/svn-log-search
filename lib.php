@@ -6,6 +6,42 @@ function update_cache($root_url)
     save_log($log, $root_url);
 }
 
+function init_svn_log_db($root_url)
+{
+    $command = 'svn log --xml -v '.$root_url;
+    $command = 'svn log --xml -vl 1 '.$root_url;
+    $log = shell_exec($command);
+    echo "$log\n";
+    $doc = new DOMDocument();
+    $doc->loadXML($log);
+    $entrylist = $doc->getElementsByTagName('logentry');
+    foreach ($entrylist as $key => $value) {
+        $revision = $value->getAttribute('revision');
+
+        // todo we need to diff and ...
+        $revOrm->whereEqual('rev', $revision)->deleteMany();
+        $fileOrm->whereEqual('rev', $revision)->deleteMany();
+        
+        $rev = $revOrm->create();
+        $rev->rev = $revision;
+        $rev->author = $value->getElementsByTagName('author')->item(0)->nodeValue;
+        $rev->date = $value->getElementsByTagName('date')->item(0)->nodeValue;
+        $rev->msg = $value->getElementsByTagName('msg')->item(0)->nodeValue;
+        $rev->files = $value->getElementsByTagName('path');
+        $rev->save();
+        foreach ($files as $key => $value) {
+            $f = $fileOrm->create();
+            $f->rev = $rev->rev;
+            $f->file = $value->nodeValue;
+            $f->action = $value->getAttribute('action');
+            $f->prop_mods = $value->getAttribute('prop-mods');
+            $f->text_mods = $value->getAttribute('text-mods');
+            $f->kind = $value->getAttribute('kind');
+            $f->save();
+        }
+    }
+}
+
 function update_cache_async($root_url)
 {
     shell_exec('svn log -v '.$root_url.' > '.get_log_file_name($root_url).' &');
