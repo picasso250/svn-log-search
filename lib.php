@@ -212,6 +212,38 @@ function get_diff($url, $file_path, $revision)
     return $entry;
 }
 
+function get_blame_from_db($root_url, $file_path, $revision)
+{
+    $entry = ORM::forTable('blame')
+        ->join('changed_path', array('f.id', '=', 'blame.file_id'), 'f')
+        ->join('rev', array('rev.id', '=', 'f.rev_id'))
+        ->join('repo', array('repo.id', '=', 'rev.repo_id'))
+        ->whereEqual('repo.repo', $root_url)
+        ->whereEqual('rev.rev', $revision)
+        ->whereEqual('f.file_path', $file_path)
+        ->findOne();
+    return $entry;
+}
+
+function get_blame($url, $file_path, $revision)
+{
+    if ($entry = get_blame_from_db($url, $file_path, $revision)) {
+        return $entry;
+    }
+
+    $command = "svn blame -r {$revision} {$url}{$file_path}";
+    echo "$command\n";
+    $output = shell_exec($command);
+
+    $file = get_changed_file($url, $revision, $file_path);
+    $file_id = $file->id;
+    $entry = ORM::forTable('blame')->create();
+    $entry->file_id = $file_id;
+    $entry->blame = $output;
+    $entry->save();
+    return $entry;
+}
+
 function get_changed_file($url, $revision, $file_path)
 {
     return ORM::forTable('changed_path')
