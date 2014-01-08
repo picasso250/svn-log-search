@@ -257,3 +257,13 @@ function syntax($log, $keywords = null)
     }
     return "<p class=\"svn-log-entry\">$log</p>";
 }
+
+function render($tpl, $vars = array(), $layout = null)
+{
+    extract($vars);
+    if ($layout) {
+        include $layout;
+    } else {
+        include $tpl;
+    }
+}

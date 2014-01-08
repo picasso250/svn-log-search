@@ -24,4 +24,9 @@ $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
 $keywords = array_filter(explode(' ', trim($keyword)), 'trim');
 $logs = search_db($keywords, $root_url);
 
-include 'index.phtml';
+render('index.phtml', array(
+    'root_url' => $root_url,
+    'logs' => $logs,
+    'keyword' => $keyword,
+    'title' => 'SVN Log Search',
+), 'layout.phtml');

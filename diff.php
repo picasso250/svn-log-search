@@ -27,4 +27,8 @@ if (empty($diff)) {
     die('we are get diff, please come back later');
 }
 
-include 'diff.phtml';
+render('diff.phtml', array(
+    'diff' => $diff,
+    'title' => 'SVN Diff',
+), 'layout.phtml');
+
