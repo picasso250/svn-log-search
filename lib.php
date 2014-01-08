@@ -51,9 +51,6 @@ function init_svn_log_db($root_url)
 
 function save_log_to_db($log, $repo)
 {
-    $revOrm = ORM::forTable('rev');
-    $fileOrm = ORM::forTable('changed_path');
-
     $doc = new DOMDocument();
     $doc->loadXML($log);
     $entrylist = $doc->getElementsByTagName('logentry');
@@ -70,7 +67,7 @@ function save_log_to_db($log, $repo)
 
         echo "save $revision\n";
 
-        $rev = $revOrm->create();
+        $rev = ORM::forTable('rev')->create();
         $rev->rev = $revision;
         $rev->repo_id = $repo->id;
         $author = $value->getElementsByTagName('author')->item(0);
@@ -85,7 +82,7 @@ function save_log_to_db($log, $repo)
         $rev->save();
         $files = $value->getElementsByTagName('path');
         foreach ($files as $k => $v) {
-            $f = $fileOrm->create();
+            $f = ORM::forTable('changed_path')->create();
             $f->rev_id = $rev->id;
             $f->file_path = $v->nodeValue;
             $f->action = $v->getAttribute('action');
@@ -93,6 +90,7 @@ function save_log_to_db($log, $repo)
             $f->text_mods = $v->getAttribute('text-mods');
             $f->kind = $v->getAttribute('kind');
             $f->save();
+            echo "save file $f->file_path rev_id $rev->id\n";
         }
     }
 }
