@@ -37,7 +37,7 @@ function init_svn_log_db($root_url)
     $maxRevInDb = get_max_rev($repo->id);
     $latestRev = get_latest_rev($root_url);
     if ($latestRev > $maxRevInDb) { // update new
-        $log = get_log($root_url, array($maxRevInDb, 'HEAD'), 100);
+        $log = get_log($root_url, null, 100);
     } else { // 补全之前的
         $log = get_log($root_url);
     }
@@ -98,9 +98,7 @@ function get_log($repo_url, $rev = null, $limit = null)
     if ($limit !== null && is_int($limit)) {
         $command .= "-l $limit ";
     }
-    if ($rev === null) {
-        $command .= '-r HEAD ';
-    } elseif (is_string($rev)) {
+    if (is_string($rev)) {
         $command .= '-r $rev ';
     } elseif (is_array($rev)) {
         $command .= "-r $rev[0]:$rev[1] ";
