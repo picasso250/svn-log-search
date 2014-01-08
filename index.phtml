@@ -71,7 +71,8 @@
               <name><?php echo $log->author ?></name> |
               <date><?php echo $log->commit_date ?></date>
               <ul>
-                <?php foreach ($log->files as $file): ?>
+                <?php $files = ORM::forTable('changed_path')->whereEqual('rev') ?>
+                <?php foreach (get_files_by_rev($log->id) as $file): ?>
                   <li>
                     <file><?php echo $file->a ?></file>
                   </li>
