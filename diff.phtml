@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>SVN Log Search</title>
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style type="text/css">
+  .svn-log-entry span {
+    color: #999999;
+  }
+  .svn-log-entry rev {
+    color: #914040;
+  }
+  .svn-log-entry name {
+    color: #292627;
+  }
+  .svn-log-entry date {
+    color: #897F8A;
+  }
+  .svn-log-entry linenum {
+    color: #696679;
+  }
+  .svn-log-entry file {
+    color: #aaa;
+  }
+  .svn-log-entry .A-action {
+    color: #56B459;
+  }
+  .svn-log-entry .M-action {
+    color: #4C4C99;
+  }
+  .svn-log-entry .D-action {
+    color: #F03B3B;
+  }
+  .svn-log-entry keyword {
+    background-color: #E9D220;
+    font-weight: bold;
+    border-radius: 5px;
+    color: #414141;
+  }
+  </style>
+</head>
+<body>
+  <!-- 头部 -->
+  <div id="header">
+    <h1>SVN Diff</h1>
+  </div>
+  <!-- /头部 -->
+
+  <!-- 主内容区 -->
+  <div id="section">
+    <?php echo nl2br($diff->diff) ?>
+  </div>
+  <!-- /主内容区 -->
+
+</body>
+</html>
+
+
