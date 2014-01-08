@@ -35,6 +35,17 @@ function get_repo($url)
     return $repo;
 }
 
+function get_rev($url, $rev)
+{
+    $repoOrm = ORM::forTable('repo');
+    return ORM::forTable('repo')
+        ->whereEqual('repo', $url)
+        ->join('rev', array('rev.repo_id', '=', 'repo.id'))
+        ->whereEqual('repo.repo', $url)
+        ->whereEqual('rev.rev', $rev)
+        ->findOne();
+}
+
 function init_svn_log_db($root_url)
 {
     $repo = get_repo($root_url);
@@ -243,7 +254,7 @@ function get_log_file_name($root_url)
     return $fpath;
 }
 
-function get_diff($root_url, $file_path, $revision)
+function get_diff_from_db($root_url, $file_path, $revision)
 {
     $diffOrm = ORM::forTable('diff');
     $entry = $diffOrm
@@ -252,12 +263,18 @@ function get_diff($root_url, $file_path, $revision)
         ->whereEqual('diff.rev', $revision)
         ->whereEqual('diff.file', $file_path)
         ->findOne();
-    if (empty($entry)) {
-        // repo get
-        // svn diff get
-        $entry = $diffOrm->create();
-        $entry->save();
-    }
+}
+function get_diff($root_url, $file_path, $revision)
+{
+    $command = "svn diff --internal-diff -r $revision $root_url/$file_path";
+    $output = shell_exec($command);
+
+    $entry = ORM::forTable('diff')->create();
+    $entry->rev_id = get_rev($root_url, $revision)->id;
+    $entry->file = $file_path;
+    $entry->diff = $output;
+    $entry->save();
+    return $entry;
 }
 
 function get_svn_root_url()
