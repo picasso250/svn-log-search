@@ -8,7 +8,8 @@ CREATE TABLE `blame` (
   `rev_id` int(10) unsigned DEFAULT NULL,
   `file` varchar(255) DEFAULT NULL,
   `blame` blob,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_rev` (`rev_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -18,14 +19,14 @@ DROP TABLE IF EXISTS `changed_path`;
 CREATE TABLE `changed_path` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `rev_id` int(10) unsigned DEFAULT NULL,
-  `text_mods` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-  `kind` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-  `action` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-  `prop_mods` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-  `file_path` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  `text_mods` varchar(255) DEFAULT NULL,
+  `kind` varchar(255) DEFAULT NULL,
+  `action` varchar(255) DEFAULT NULL,
+  `prop_mods` varchar(255) DEFAULT NULL,
+  `file_path` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `path_rev_idx` (`rev_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10584 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for diff
@@ -36,7 +37,8 @@ CREATE TABLE `diff` (
   `rev_id` int(10) unsigned DEFAULT NULL,
   `file` varchar(255) DEFAULT NULL,
   `diff` blob,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_rev` (`rev_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -45,9 +47,9 @@ CREATE TABLE `diff` (
 DROP TABLE IF EXISTS `repo`;
 CREATE TABLE `repo` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `repo` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  `repo` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for rev
@@ -57,9 +59,11 @@ CREATE TABLE `rev` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `rev` int(10) unsigned NOT NULL,
   `repo_id` int(10) unsigned DEFAULT NULL,
-  `author` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-  `commit_date` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  `author` varchar(255) DEFAULT NULL,
+  `commit_date` varchar(255) DEFAULT NULL,
   `line_num` smallint(6) DEFAULT NULL,
-  `msg` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `msg` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_rev` (`rev`),
+  KEY `idx_repo` (`repo_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=878 DEFAULT CHARSET=utf8;
