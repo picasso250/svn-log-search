@@ -169,10 +169,11 @@ function search_db($keyword, $root_url)
     $revOrm = ORM::forTable('rev');
     $revOrm
         ->join('repo', array('rev.repo_id', '=', 'repo.id'))
-        ->join('changed_path', array('f.rev_id', '=', 'rev.id'), 'f')
+        ->left_outer_join('changed_path', array('f.rev_id', '=', 'rev.id'), 'f')
         ->select('rev.*')
         ->groupBy('rev.rev')
         ->orderByDesc('rev.rev')
+        ->whereEqual('repo.repo', $root_url)
         ->limit(500);
 
     if (is_string($keyword)) {
