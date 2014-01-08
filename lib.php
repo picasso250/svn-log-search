@@ -12,12 +12,6 @@ function get_files_by_rev($rev_id, $limit = null)
     return $orm->findMany();
 }
 
-function update_cache($root_url)
-{
-    $log = shell_exec('svn log -v '.$root_url);
-    save_log($log, $root_url);
-}
-
 function update_svn_log_db($root_url)
 {
     return init_svn_log_db($root_url);
@@ -150,11 +144,6 @@ function get_min_rev($repo_id) {
         ->findOne()->mr ?: 0;
 }
 
-function update_cache_async($root_url)
-{
-    shell_exec('svn log -v '.$root_url.' > '.get_log_file_name($root_url).' &');
-}
-
 function search($keyword, $root_url)
 {
     $log = read_log($root_url);
@@ -176,72 +165,6 @@ function search($keyword, $root_url)
         }
     }
     return $ret;
-}
-
-function search_db($keyword, $root_url)
-{
-    $revOrm = ORM::forTable('rev');
-    $revOrm
-        ->join('repo', array('rev.repo_id', '=', 'repo.id'))
-        ->left_outer_join('changed_path', array('f.rev_id', '=', 'rev.id'), 'f')
-        ->select('rev.*')
-        ->groupBy('rev.rev')
-        ->orderByDesc('rev.rev')
-        ->whereEqual('repo.repo', $root_url)
-        ->limit(500);
-
-    if (is_string($keyword)) {
-        $keyword = trim($keyword);
-        if (empty($keyword)) {
-            return $revOrm->findMany();
-        }
-        $keywords = implode(' ', $keyword);
-    } else {
-        $keywords = $keyword;
-    }
-    $keywords = array_map('trim', array_filter($keywords, 'trim'));
-    if (empty($keywords)) {
-        return $revOrm->findMany();
-    }
-    $whereExpr = array();
-    $values = array();
-    foreach ($keywords as $kw) {
-        $whereExpr[] = '(rev.rev=? OR rev.author LIKE ? OR rev.commit_date LIKE ? OR rev.msg LIKE ? OR f.file_path LIKE ?)';
-        $values[] = $kw;
-        $values[] = "%$kw%";
-        $values[] = "%$kw%";
-        $values[] = "%$kw%";
-        $values[] = "%$kw%";
-    }
-    $revOrm->whereRaw(implode(' AND ', $whereExpr), $values);
-    return $revOrm->findMany();
-}
-
-// match all
-function match_array($str, $arr)
-{
-    $arr = array_filter($arr, 'trim');
-    foreach ($arr as $kw) {
-        if (stripos($str, $kw) === false) {
-            return false;
-        }
-    }
-    return true;
-}
-
-function read_log($root_url)
-{
-    $fpath = get_log_file_name($root_url);
-    if (!file_exists($fpath)) {
-        update_cache($root_url);
-    }
-    return file_get_contents($fpath);
-}
-
-function save_log($log, $root_url)
-{
-    $fpath = get_log_file_name($root_url);
-    $rs = file_put_contents($fpath, $log);
 }
 
 function get_log_file_name($root_url)
