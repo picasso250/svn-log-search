@@ -23,7 +23,7 @@ if (empty($diff)) {
             'file' => $file,
             'revision' => $revision,
             );
-    $token = Resque::enqueue('default', 'SvnGetDiffJob', $args);
+    $token = Resque::enqueue('diff', 'SvnGetDiffJob', $args);
     die('we are get diff, please come back later');
 }
 

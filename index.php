@@ -16,7 +16,7 @@ $root_url = $config['repos'][$repo];
     $args = array(
             'url' => $root_url,
             );
-    $token = Resque::enqueue('default', 'SvnUpdateLogJob', $args);
+    $token = Resque::enqueue('log', 'SvnUpdateLogJob', $args);
     // die('we are updating, please come back later');
 // }
 

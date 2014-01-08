@@ -16,7 +16,7 @@ apt-get install redis-server
 you have to start worker first.
 
 ```bash
-QUEUE=default php worker.php
+QUEUE=diff,log php worker.php
 ```
 
 每人每月的提交数量（更改的文件数量）（增删的行数）
