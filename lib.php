@@ -48,7 +48,7 @@ function init_svn_log_db($root_url)
     if ($latestRev > $maxRevInDb) { // update new
         $log = get_log($root_url, null, 100);
     } else { // 补全之前的
-        $log = get_log($root_url);
+        $log = get_log($root_url, array(0, get_min_rev($repo->id)));
     }
     save_log_to_db($log, $repo);
 }
@@ -62,14 +62,11 @@ function save_log_to_db($log, $repo)
         $revision = $value->getAttribute('revision');
 
         if (ORM::forTable('rev')->whereEqual('rev', $revision)->findOne()) {
-            echo "skip $revision\n";
             continue;
         }
 
-        // ORM::forTable('rev')->whereEqual('rev', $revision)->deleteMany();
-        // ORM::forTable('changed_path')->whereEqual('rev', $revision)->deleteMany();
-
         echo "save $revision\n";
+        ORM::get_db()->beginTransaction();
 
         $rev = ORM::forTable('rev')->create();
         $rev->rev = $revision;
@@ -96,6 +93,7 @@ function save_log_to_db($log, $repo)
             $f->save();
             echo "save file $f->file_path rev_id $rev->id\n";
         }
+        ORM::get_db()->commit();
     }
 }
 
@@ -195,15 +193,20 @@ function get_diff_from_db($root_url, $file_path, $revision)
         ->findOne();
 }
 
-function get_diff($root_url, $file_path, $revision)
+function get_diff($url, $file_path, $revision)
 {
-    $command = "svn diff --internal-diff -c {$revision} {$root_url}{$file_path}";
+    if ($entry = get_diff_from_db($url, $file_path, $revision)) {
+        return $entry;
+    }
+
+    $command = "svn diff --internal-diff -c {$revision} {$url}{$file_path}";
     echo "$command\n";
     $output = shell_exec($command);
 
+    $file = get_changed_file($url, $revision, $file_path);
+    $file_id = $file->id;
     $entry = ORM::forTable('diff')->create();
-    $entry->file_id = get_changed_file($root_url, $revision, $file_path)->id;
-    $entry->file = $file_path;
+    $entry->file_id = $file_id;
     $entry->diff = $output;
     $entry->save();
     return $entry;
@@ -212,7 +215,7 @@ function get_diff($root_url, $file_path, $revision)
 function get_changed_file($url, $revision, $file_path)
 {
     return ORM::forTable('changed_path')
-        ->alias('f')
+        ->table_alias('f')
         ->join('rev', array('rev.id', '=', 'f.rev_id'))
         ->join('repo', array('rev.repo_id', '=', 'repo.id'))
         ->whereEqual('repo.repo', $url)
