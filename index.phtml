@@ -66,7 +66,19 @@
       <ul>
         <?php foreach ($logs as $log): ?>
           <li>
-            <?php echo syntax($log, $keywords) ?>
+            <div class="svn-log-entry">
+              <rev><?php echo $log->rev ?></rev> |
+              <name><?php echo $log->author ?></name> |
+              <date><?php echo $log->commit_date ?></date>
+              <ul>
+                <?php foreach ($log->files as $file): ?>
+                  <li>
+                    <file><?php echo $file->a ?></file>
+                  </li>
+                <?php endforeach ?>
+              </ul>
+              <div><?php echo $log->msg ?></div>
+            </div>
           </li>
         <?php endforeach ?>
       </ul>
