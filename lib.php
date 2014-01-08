@@ -144,37 +144,43 @@ function get_min_rev($repo_id) {
         ->findOne()->mr ?: 0;
 }
 
-function search($keyword, $root_url)
+function search_db($keyword, $root_url)
 {
-    $log = read_log($root_url);
-    $logs = explode('------------------------------------------------------------------------', $log);
-    unset($logs[0]);
-    unset($logs[count($logs)-1]);
+    $revOrm = ORM::forTable('rev');
+    $revOrm
+        ->join('repo', array('rev.repo_id', '=', 'repo.id'))
+        ->left_outer_join('changed_path', array('f.rev_id', '=', 'rev.id'), 'f')
+        ->select('rev.*')
+        ->groupBy('rev.rev')
+        ->orderByDesc('rev.rev')
+        ->whereEqual('repo.repo', $root_url)
+        ->limit(500);
 
-    if (empty($keyword)) {
-        return $logs;
-    }
-
-    $ret = array();
-    foreach ($logs as $log) {
-        if (is_string($keyword) && trim($keyword) && stripos($log, trim($keyword)) !== false) {
-            $ret[] = $log;
+    if (is_string($keyword)) {
+        $keyword = trim($keyword);
+        if (empty($keyword)) {
+            return $revOrm->findMany();
         }
-        if (is_array($keyword) && match_array($log, $keyword)) {
-            $ret[] = $log;
-        }
+        $keywords = implode(' ', $keyword);
+    } else {
+        $keywords = $keyword;
     }
-    return $ret;
-}
-
-function get_log_file_name($root_url)
-{
-    $dir = __DIR__.'/log';
-    if (!file_exists($dir)) {
-        mkdir($dir);
+    $keywords = array_map('trim', array_filter($keywords, 'trim'));
+    if (empty($keywords)) {
+        return $revOrm->findMany();
     }
-    $fpath = $dir.'/'.md5($root_url).'.log';
-    return $fpath;
+    $whereExpr = array();
+    $values = array();
+    foreach ($keywords as $kw) {
+        $whereExpr[] = '(rev.rev=? OR rev.author LIKE ? OR rev.commit_date LIKE ? OR rev.msg LIKE ? OR f.file_path LIKE ?)';
+        $values[] = $kw;
+        $values[] = "%$kw%";
+        $values[] = "%$kw%";
+        $values[] = "%$kw%";
+        $values[] = "%$kw%";
+    }
+    $revOrm->whereRaw(implode(' AND ', $whereExpr), $values);
+    return $revOrm->findMany();
 }
 
 function get_diff_from_db($root_url, $file_path, $revision)
