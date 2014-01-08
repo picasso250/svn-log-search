@@ -268,7 +268,8 @@ function get_diff_from_db($root_url, $file_path, $revision)
 
 function get_diff($root_url, $file_path, $revision)
 {
-    $command = "svn diff --internal-diff -r $revision $root_url/$file_path";
+    $command = "svn diff --internal-diff -c {$revision} {$root_url}{$file_path}";
+    echo "$command\n";
     $output = shell_exec($command);
 
     $entry = ORM::forTable('diff')->create();
