@@ -1,10 +1,15 @@
 <?php
 
-function get_files_by_rev($rev_id)
+function get_files_by_rev($rev_id, $limit = null)
 {
-    return ORM::forTable('changed_path')
+
+    $orm = ORM::forTable('changed_path')
         ->whereEqual('rev_id', $rev_id)
-        ->findMany();
+        ;
+    if ($limit !== null) {
+        $orm->limit(5);
+    }
+    return $orm->findMany();
 }
 
 function update_cache($root_url)
@@ -79,14 +84,14 @@ function save_log_to_db($log, $repo)
         $rev->msg = $value->getElementsByTagName('msg')->item(0)->nodeValue;
         $rev->save();
         $files = $value->getElementsByTagName('path');
-        foreach ($files as $key => $value) {
+        foreach ($files as $k => $v) {
             $f = $fileOrm->create();
             $f->rev_id = $rev->id;
-            $f->file_path = $value->nodeValue;
-            $f->action = $value->getAttribute('action');
-            $f->prop_mods = $value->getAttribute('prop-mods');
-            $f->text_mods = $value->getAttribute('text-mods');
-            $f->kind = $value->getAttribute('kind');
+            $f->file_path = $v->nodeValue;
+            $f->action = $v->getAttribute('action');
+            $f->prop_mods = $v->getAttribute('prop-mods');
+            $f->text_mods = $v->getAttribute('text-mods');
+            $f->kind = $v->getAttribute('kind');
             $f->save();
         }
     }
