@@ -54,7 +54,13 @@ function init_svn_log_db($root_url)
         $rev = $revOrm->create();
         $rev->rev = $revision;
         $rev->repo_id = $repo->id;
-        $rev->author = $value->getElementsByTagName('author')->item(0)->nodeValue;
+        $author = $value->getElementsByTagName('author')->item(0);
+        if (empty($author)) {
+            echo "author is empty\n";
+            $rev->author = '';
+        } else {
+            $rev->author = $author->nodeValue;
+        }
         $rev->commit_date = $value->getElementsByTagName('date')->item(0)->nodeValue;
         $rev->msg = $value->getElementsByTagName('msg')->item(0)->nodeValue;
         $rev->save();
@@ -171,6 +177,23 @@ function get_log_file_name($root_url)
     }
     $fpath = $dir.'/'.md5($root_url).'.log';
     return $fpath;
+}
+
+function get_diff($root_url, $file_path, $revision)
+{
+    $diffOrm = ORM::forTable('diff');
+    $entry = $diffOrm
+        ->join('repo', array('repo.id', '=', 'diff.repo_id'))
+        ->whereEqual('repo.repo', $root_url)
+        ->whereEqual('diff.rev', $revision)
+        ->whereEqual('diff.file', $file_path)
+        ->findOne();
+    if (empty($entry)) {
+        // repo get
+        // svn diff get
+        $entry = $diffOrm->create();
+        $entry->save();
+    }
 }
 
 function get_svn_root_url()
