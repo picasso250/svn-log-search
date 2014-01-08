@@ -2,6 +2,7 @@
 
 require 'vendor/autoload.php';
 require 'lib.php';
+require 'SvnGetDiffJob.php';
 require 'SvnUpdateLogJob.php';
 $config = include 'config.php';
 
