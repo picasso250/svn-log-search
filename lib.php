@@ -182,8 +182,7 @@ function search_db($keyword, $root_url)
 
 function get_diff_from_db($root_url, $file_path, $revision)
 {
-    $diffOrm = ORM::forTable('diff');
-    $entry = $diffOrm
+    $entry = ORM::forTable('diff')
         ->join('changed_path', array('f.id', '=', 'diff.file_id'), 'f')
         ->join('rev', array('rev.id', '=', 'f.rev_id'))
         ->join('repo', array('repo.id', '=', 'rev.repo_id'))
@@ -191,6 +190,7 @@ function get_diff_from_db($root_url, $file_path, $revision)
         ->whereEqual('rev.rev', $revision)
         ->whereEqual('f.file_path', $file_path)
         ->findOne();
+    return $entry;
 }
 
 function get_diff($url, $file_path, $revision)
