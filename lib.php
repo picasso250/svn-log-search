@@ -1,5 +1,12 @@
 <?php
 
+function get_files_by_rev($rev_id)
+{
+    return ORM::forTable('changed_path')
+        ->whereEqual('rev_id', $rev_id)
+        ->findMany();
+}
+
 function update_cache($root_url)
 {
     $log = shell_exec('svn log -v '.$root_url);
@@ -11,30 +18,37 @@ function update_svn_log_db($root_url)
     return init_svn_log_db($root_url);
 }
 
-function init_svn_log_db($root_url)
+function get_repo($url)
 {
     $repoOrm = ORM::forTable('repo');
+    $repo = $repoOrm->whereEqual('repo', $url)->findOne();
+    if (empty($repo)) {
+        $repo = $repoOrm->create();
+        $repo->repo = $url;
+        $repo->save();
+    }
+    return $repo;
+}
+
+function init_svn_log_db($root_url)
+{
+    $repo = get_repo($root_url);
+
+    $maxRevInDb = get_max_rev($repo->id);
+    $latestRev = get_latest_rev($root_url);
+    if ($latestRev > $maxRevInDb) { // update new
+        $log = get_log($root_url, array($maxRevInDb, 'HEAD'), 100);
+    } else { // 补全之前的
+        $log = get_log($root_url);
+    }
+    save_log_to_db($log, $repo);
+}
+
+function save_log_to_db($log, $repo)
+{
     $revOrm = ORM::forTable('rev');
     $fileOrm = ORM::forTable('changed_path');
 
-    $repo = $repoOrm->whereEqual('repo', $root_url)->findOne();
-    if (empty($repo)) {
-        $repo = $repoOrm->create();
-        $repo->repo = $root_url;
-        $repo->save();
-    }
-
-    $command = 'svn log --xml -v ';
-    $maxRev = ORM::forTable('rev')
-        ->selectExpr('MAX(rev) as mr')
-        ->whereEqual('repo_id', $repo->id)
-        ->findOne()->mr;
-    if ($maxRev && $maxRev > 0) {
-        $command .= '-r '.$maxRev.':HEAD ';
-    }
-    $command .= $root_url;
-    echo "$command\n";
-    $log = shell_exec($command);
     $doc = new DOMDocument();
     $doc->loadXML($log);
     $entrylist = $doc->getElementsByTagName('logentry');
@@ -46,8 +60,8 @@ function init_svn_log_db($root_url)
             continue;
         }
 
-        ORM::forTable('rev')->whereEqual('rev', $revision)->deleteMany();
-        ORM::forTable('changed_path')->whereEqual('rev', $revision)->deleteMany();
+        // ORM::forTable('rev')->whereEqual('rev', $revision)->deleteMany();
+        // ORM::forTable('changed_path')->whereEqual('rev', $revision)->deleteMany();
 
         echo "save $revision\n";
 
@@ -67,7 +81,7 @@ function init_svn_log_db($root_url)
         $files = $value->getElementsByTagName('path');
         foreach ($files as $key => $value) {
             $f = $fileOrm->create();
-            $f->rev = $rev->rev;
+            $f->rev_id = $rev->id;
             $f->file_path = $value->nodeValue;
             $f->action = $value->getAttribute('action');
             $f->prop_mods = $value->getAttribute('prop-mods');
@@ -76,6 +90,52 @@ function init_svn_log_db($root_url)
             $f->save();
         }
     }
+}
+
+function get_log($repo_url, $rev = null, $limit = null)
+{
+    $command = 'svn log --xml -v ';
+    if ($limit !== null && is_int($limit)) {
+        $command .= "-l $limit ";
+    }
+    if ($rev === null) {
+        $command .= '-r HEAD ';
+    } elseif (is_string($rev)) {
+        $command .= '-r $rev ';
+    } elseif (is_array($rev)) {
+        $command .= "-r $rev[0]:$rev[1] ";
+    }
+    $command .= $repo_url;
+    echo "$command\n";
+    $log = shell_exec($command);
+    return $log;
+}
+
+function get_latest_rev($repo_url)
+{
+    $command = 'svn log --xml -r HEAD '.$repo_url;
+    echo "$command\n";
+    $log = shell_exec($command);
+    $doc = new DOMDocument();
+    $doc->loadXML($log);
+    $entrylist = $doc->getElementsByTagName('logentry');
+    $value = $entrylist->item(0);
+    $revision = $value->getAttribute('revision');
+    return $revision;
+}
+
+function get_max_rev($repo_id) {
+    return ORM::forTable('rev')
+        ->selectExpr('MAX(rev) as mr')
+        ->whereEqual('repo_id', $repo_id)
+        ->findOne()->mr ?: 0;
+}
+
+function get_min_rev($repo_id) {
+    return ORM::forTable('rev')
+        ->selectExpr('MIN(rev) as mr')
+        ->whereEqual('repo_id', $repo_id)
+        ->findOne()->mr ?: 0;
 }
 
 function update_cache_async($root_url)
@@ -111,8 +171,9 @@ function search_db($keyword, $root_url)
     $revOrm = ORM::forTable('rev');
     $revOrm
         ->join('repo', array('rev.repo_id', '=', 'repo.id'))
-        ->join('changed_path', array('f.rev', '=', 'rev.rev'), 'f')
+        ->join('changed_path', array('f.rev_id', '=', 'rev.id'), 'f')
         ->select('rev.*')
+        ->groupBy('rev.rev')
         ->limit(500);
 
     if (is_string($keyword)) {
