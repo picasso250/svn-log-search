@@ -31,12 +31,11 @@ function get_repo($url)
 
 function get_rev($url, $rev)
 {
-    $repoOrm = ORM::forTable('repo');
     return ORM::forTable('repo')
-        ->whereEqual('repo', $url)
         ->join('rev', array('rev.repo_id', '=', 'repo.id'))
         ->whereEqual('repo.repo', $url)
         ->whereEqual('rev.rev', $rev)
+        ->selectExpr('rev.*')
         ->findOne();
 }
 
@@ -187,11 +186,12 @@ function get_diff_from_db($root_url, $file_path, $revision)
 {
     $diffOrm = ORM::forTable('diff');
     $entry = $diffOrm
-        ->join('rev', array('rev.id', '=', 'diff.rev_id'))
+        ->join('changed_path', array('f.id', '=', 'diff.file_id'), 'f')
+        ->join('rev', array('rev.id', '=', 'f.rev_id'))
         ->join('repo', array('repo.id', '=', 'rev.repo_id'))
         ->whereEqual('repo.repo', $root_url)
         ->whereEqual('rev.rev', $revision)
-        ->whereEqual('diff.file', $file_path)
+        ->whereEqual('f.file_path', $file_path)
         ->findOne();
 }
 
@@ -202,11 +202,24 @@ function get_diff($root_url, $file_path, $revision)
     $output = shell_exec($command);
 
     $entry = ORM::forTable('diff')->create();
-    $entry->rev_id = get_rev($root_url, $revision)->id;
+    $entry->file_id = get_changed_file($root_url, $revision, $file_path)->id;
     $entry->file = $file_path;
     $entry->diff = $output;
     $entry->save();
     return $entry;
+}
+
+function get_changed_file($url, $revision, $file_path)
+{
+    return ORM::forTable('changed_path')
+        ->alias('f')
+        ->join('rev', array('rev.id', '=', 'f.rev_id'))
+        ->join('repo', array('rev.repo_id', '=', 'repo.id'))
+        ->whereEqual('repo.repo', $url)
+        ->whereEqual('rev.rev', $revision)
+        ->whereEqual('f.file_path', $file_path)
+        ->selectExpr('f.*')
+        ->findOne();
 }
 
 function get_svn_root_url()
