@@ -258,12 +258,14 @@ function get_diff_from_db($root_url, $file_path, $revision)
 {
     $diffOrm = ORM::forTable('diff');
     $entry = $diffOrm
-        ->join('repo', array('repo.id', '=', 'diff.repo_id'))
+        ->join('rev', array('rev.id', '=', 'diff.rev_id'))
+        ->join('repo', array('repo.id', '=', 'rev.repo_id'))
         ->whereEqual('repo.repo', $root_url)
-        ->whereEqual('diff.rev', $revision)
+        ->whereEqual('rev.rev', $revision)
         ->whereEqual('diff.file', $file_path)
         ->findOne();
 }
+
 function get_diff($root_url, $file_path, $revision)
 {
     $command = "svn diff --internal-diff -r $revision $root_url/$file_path";

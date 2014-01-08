@@ -77,7 +77,7 @@
                     <?php echo $file->action ?>
                     <file><?php echo $file->file_path ?></file>
                     <?php if ($file->action == 'M'): ?>
-                      <a href="diff.php?repo=<?php echo htmlentities($root_url) ?>&amp;file=<?php echo $file->file_path ?>">diff</a>
+                      <a href="diff.php?repo=<?php echo htmlentities($root_url) ?>&amp;file=<?php echo $file->file_path ?>&amp;revision=<?php echo $log->rev ?>">diff</a>
                     <?php endif ?>
                   </li>
                 <?php endforeach ?>
