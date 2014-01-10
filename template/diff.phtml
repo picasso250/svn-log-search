@@ -1,12 +1,13 @@
 
 <!-- 头部 -->
 <div id="header">
-  <h1><?php echo $title ?></h1>
+  <h1><?php echo $title ?> <?php echo $_GET['file'] ?></h1>
 </div>
 <!-- /头部 -->
 
 <!-- 主内容区 -->
+<link rel="stylesheet" type="text/css" href="css/diff.css">
 <div id="section">
-  <?php echo nl2br($diff->diff) ?>
+  <div><?php echo highlight_diff($diff->diff) ?></div>
 </div>
 <!-- /主内容区 -->

@@ -305,6 +305,16 @@ function syntax($log, $keywords = null)
     return "<p class=\"svn-log-entry\">$log</p>";
 }
 
+function highlight_diff($log)
+{
+    $log = preg_replace('/^-[^-].*/um', '<del>$0</del>', $log);
+    $log = preg_replace('/^\+[^+].*/um', '<add>$0</add>', $log);
+    $log = preg_replace('/^@@.*@@$/um', '<line>$0</line>', $log);
+    $log = str_replace(' ', '&nbsp;', $log);
+    $log = str_replace(PHP_EOL, "<br>\n", $log);
+    return "<div class=\"svn-diff\">$log</div>";
+}
+
 function highlight_keyword($log, $keywords = null)
 {
     if ($keywords) {

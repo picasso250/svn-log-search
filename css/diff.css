@@ -1,0 +1,12 @@
+.svn-diff {
+    font-family: "Yahei Consolas Hydrid";
+}
+.svn-diff line {
+    font-weight: bold;
+}
+.svn-diff add {
+    color: green;
+}
+.svn-diff del {
+    color: red;
+}
