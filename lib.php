@@ -183,9 +183,6 @@ function search_db($keyword, $root_url, $limit = 500)
         ->orderByDesc('rev.rev')
         ->limit($limit);
 
-    if (empty($keyword)) {
-        return $revOrm->findMany();
-    }
     $countORM = get_prepare_orm($keyword, $root_url);
     $logs = $revOrm
         ->select('rev.*')
@@ -307,6 +304,7 @@ function syntax($log, $keywords = null)
 
 function highlight_diff($log)
 {
+    $log = htmlspecialchars($log);
     $log = preg_replace('/^-[^-].*/um', '<del>$0</del>', $log);
     $log = preg_replace('/^\+[^+].*/um', '<add>$0</add>', $log);
     $log = preg_replace('/^@@.*@@$/um', '<line>$0</line>', $log);
