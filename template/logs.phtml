@@ -19,7 +19,7 @@
             <li class="<?php echo $file->action ?>-action">
               <?php echo $file->action ?>
               <?php echo highlight_keyword($file->file_path, $keywords) ?>
-              <?php if ($file->action == 'M'): ?>
+              <?php if ($file->action == 'M' && $file->kind == 'file'): ?>
                 <a class="control" href="diff.php?repo=<?php echo htmlentities($root_url) ?>&amp;file=<?php echo $file->file_path ?>&amp;revision=<?php echo $log->rev ?>">diff</a>
                 <a class="control" href="blame.php?repo=<?php echo htmlentities($root_url) ?>&amp;file=<?php echo $file->file_path ?>&amp;revision=<?php echo $log->rev ?>">blame</a>
               <?php endif ?>
