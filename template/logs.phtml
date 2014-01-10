@@ -20,7 +20,7 @@
           'repo' => $repo,
         )) ?>
         <?php if (get_files_count_by_rev($log->id) != count($files)): ?>
-        <a href="javascript:void(0)" onClick="loadFilesByRev(<?php echo $log->id ?>)">show more</a>
+        <a href="javascript:void(0)" onClick="loadFilesByRev(this, <?php echo $log->id ?>)">show more</a>
         <?php endif ?>
       </div>
     </li>
@@ -29,7 +29,7 @@
 <?php endif ?>
 
 <script type="text/javascript">
-function loadFilesByRev(rev) {
+function loadFilesByRev(btn, rev) {
   var data = {
     rev_id: rev,
     repo: '<?php echo $repo ?>'
@@ -37,5 +37,6 @@ function loadFilesByRev(rev) {
   $.get('files.php', data, function (ret) {
     $('#Files'+rev).replaceWith(ret);
   }, 'html');
+  $(btn).hide();
 }
 </script>
