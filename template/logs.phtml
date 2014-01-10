@@ -14,18 +14,7 @@
         <a href="author.php?author=<?php echo $log->author ?>&amp;repo=<?php echo $root_url ?>" class="author"><?php echo highlight_keyword($log->author, $keywords) ?></a> |
         <date><?php echo highlight_keyword($log->commit_date, $keywords) ?></date>
         <div class="msg"><?php echo nl2br(highlight_keyword($log->msg, $keywords)) ?></div>
-        <ul class="files">
-          <?php foreach (get_files_by_rev($log->id) as $file): ?>
-            <li class="<?php echo $file->action ?>-action">
-              <?php echo $file->action ?>
-              <?php echo highlight_keyword($file->file_path, $keywords) ?>
-              <?php if ($file->action == 'M' && $file->kind == 'file'): ?>
-                <a class="control" href="diff.php?repo=<?php echo htmlentities($root_url) ?>&amp;file=<?php echo $file->file_path ?>&amp;revision=<?php echo $log->rev ?>">diff</a>
-                <a class="control" href="blame.php?repo=<?php echo htmlentities($root_url) ?>&amp;file=<?php echo $file->file_path ?>&amp;revision=<?php echo $log->rev ?>">blame</a>
-              <?php endif ?>
-            </li>
-          <?php endforeach ?>
-        </ul>
+        <?php include 'files.phtml' ?>
       </div>
     </li>
   <?php endforeach ?>

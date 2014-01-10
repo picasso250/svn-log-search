@@ -1,0 +1,15 @@
+<ul class="files">
+  <?php foreach (get_files_by_rev($log->id) as $file): ?>
+    <li class="<?php echo $file->action ?>-action" title="">
+      <?php echo $file->action ?>
+      <?php echo $file->file_path ?>
+      <?php if ($file->copyfrom_rev): ?>
+        (Merge from: <?php echo $file->copyfrom_path ?>@<?php echo $file->copyfrom_rev ?>)
+      <?php endif ?>
+      <?php if ($file->action == 'M' && $file->kind == 'file'): ?>
+        <a class="control" href="diff.php?repo=<?php echo htmlentities($root_url) ?>&amp;file=<?php echo $file->file_path ?>&amp;revision=<?php echo $log->rev ?>">diff</a>
+        <a class="control" href="blame.php?repo=<?php echo htmlentities($root_url) ?>&amp;file=<?php echo $file->file_path ?>&amp;revision=<?php echo $log->rev ?>">blame</a>
+      <?php endif ?>
+    </li>
+  <?php endforeach ?>
+</ul>
