@@ -97,7 +97,7 @@ function save_log_to_db($log, $repo)
     foreach ($entrylist as $key => $value) {
         $revision = $value->getAttribute('revision');
 
-        if (ORM::forTable('rev')->whereEqual('rev', $revision)->findOne()) {
+        if (ORM::forTable('rev')->whereEqual('repo_id', $repo->id)->whereEqual('rev', $revision)->findOne()) {
             continue;
         }
 
