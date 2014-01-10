@@ -10,8 +10,8 @@
   <?php foreach ($logs as $log): ?>
     <li>
       <div class="svn-log-entry">
-        <rev><?php echo $log->rev ?></rev> |
-        <name><?php echo highlight_keyword($log->author, $keywords) ?></name> |
+        <a href="rev.php?revision=<?php echo $log->rev ?>&amp;repo=<?php echo $root_url ?>" class="revision"><?php echo $log->rev ?></a> |
+        <a href="author.php?author=<?php echo $log->author ?>&amp;repo=<?php echo $root_url ?>" class="author"><?php echo highlight_keyword($log->author, $keywords) ?></a> |
         <date><?php echo highlight_keyword($log->commit_date, $keywords) ?></date>
         <div class="msg"><?php echo nl2br(highlight_keyword($log->msg, $keywords)) ?></div>
         <ul class="files">

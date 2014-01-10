@@ -74,12 +74,12 @@ textarea:focus, input:focus{
 .svn-log-entry span {
   color: #999999;
 }
-.svn-log-entry rev {
+.svn-log-entry .revision {
   color: #914040;
   font-family: Consolas;
   font-weight: bold;
 }
-.svn-log-entry name {
+.svn-log-entry .author {
   color: #292627;
 }
 .svn-log-entry date {

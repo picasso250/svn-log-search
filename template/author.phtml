@@ -1,0 +1,25 @@
+
+<!-- 头部 -->
+<div id="header">
+  <h1><?php echo $title ?></h1>
+</div>
+<!-- /头部 -->
+
+<!-- 主内容区 -->
+<div id="section">
+  <?php echo $count ?> commit.
+  <?php echo $file_count ?> files commit.
+  <ul>
+    <?php foreach ($logs as $log): ?>
+      <li>
+        <div class="svn-log-entry">
+          <a href="rev.php?revision=<?php echo $log->rev ?>&amp;repo=<?php echo $root_url ?>" class="revision"><?php echo $log->rev ?></a> |
+          <span class="author"><?php echo $log->author ?></span> |
+          <date><?php echo $log->commit_date ?></date>
+          <div class="msg"><?php echo nl2br($log->msg) ?></div>
+        </div>
+      </li>
+    <?php endforeach ?>
+  </ul>
+</div>
+<!-- /主内容区 -->

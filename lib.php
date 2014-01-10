@@ -1,8 +1,37 @@
 <?php
 
+function get_commit_by_author($repo, $author)
+{
+    return ORM::forTable('rev')
+        ->join('repo', array('rev.repo_id', '=', 'repo.id'))
+        ->whereEqual('rev.author', $author)
+        ->whereEqual('repo.repo', $repo)
+        ->select('rev.*')
+        ->orderByDesc('rev.rev')
+        ->findMany();
+}
+
+function get_commit_count_by_author($repo, $author)
+{
+    return ORM::forTable('rev')
+        ->join('repo', array('rev.repo_id', '=', 'repo.id'))
+        ->whereEqual('rev.author', $author)
+        ->whereEqual('repo.repo', $repo)
+        ->count();
+}
+
+function get_file_commit_count_by_author($repo, $author)
+{
+    return ORM::forTable('rev')
+        ->join('repo', array('rev.repo_id', '=', 'repo.id'))
+        ->join('changed_path', array('f.rev_id', '=', 'rev.id'), 'f')
+        ->whereEqual('author', $author)
+        ->whereEqual('repo.repo', $repo)
+        ->count();
+}
+
 function get_files_by_rev($rev_id, $limit = null)
 {
-
     $orm = ORM::forTable('changed_path')
         ->whereEqual('rev_id', $rev_id)
         ->orderByAsc('file_path')
