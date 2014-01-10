@@ -141,7 +141,7 @@ function get_min_rev($repo_id) {
         ->findOne()->mr ?: 0;
 }
 
-function search_db($keyword, $root_url)
+function search_db($keyword, $root_url, $limit = 500)
 {
     $revOrm = ORM::forTable('rev');
     $revOrm
@@ -151,7 +151,7 @@ function search_db($keyword, $root_url)
         ->groupBy('rev.rev')
         ->orderByDesc('rev.rev')
         ->whereEqual('repo.repo', $root_url)
-        ->limit(500);
+        ->limit($limit);
 
     if (is_string($keyword)) {
         $keyword = trim($keyword);

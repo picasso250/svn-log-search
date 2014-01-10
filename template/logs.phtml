@@ -5,8 +5,8 @@
     <li>
       <div class="svn-log-entry">
         <rev><?php echo $log->rev ?></rev> |
-        <name><?php echo $log->author ?></name> |
-        <date><?php echo $log->commit_date ?></date>
+        <name><?php echo highlight_keyword($log->author, $keywords) ?></name> |
+        <date><?php echo highlight_keyword($log->commit_date, $keywords) ?></date>
         <div class="msg"><?php echo nl2br(highlight_keyword($log->msg, $keywords)) ?></div>
         <ul class="files">
           <?php foreach (get_files_by_rev($log->id) as $file): ?>

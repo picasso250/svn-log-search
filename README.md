@@ -25,7 +25,3 @@ todo
 每人每月的提交数量（更改的文件数量）（增删的行数）
 
 6 more files ...
-
-instant search
-
-key word highlight
