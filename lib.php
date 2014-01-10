@@ -290,6 +290,19 @@ function syntax($log, $keywords = null)
     return "<p class=\"svn-log-entry\">$log</p>";
 }
 
+function highlight_keyword($log, $keywords = null)
+{
+    if ($keywords) {
+        if (is_string($keywords)) {
+            $keywords = array($keywords);
+        }
+        foreach ($keywords as $keyword) {
+            $log = str_replace($keyword, "<keyword>$keyword</keyword>", $log);
+        }
+    }
+    return $log;
+}
+
 function render($tpl, $vars = array(), $layout = null)
 {
     extract($vars);

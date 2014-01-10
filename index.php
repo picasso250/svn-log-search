@@ -28,5 +28,6 @@ render('index.phtml', array(
     'root_url' => $root_url,
     'logs' => $logs,
     'keyword' => $keyword,
+    'keywords' => $keywords,
     'title' => 'SVN Log Search',
 ), 'layout.phtml');
