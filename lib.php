@@ -120,6 +120,8 @@ function save_log_to_db($log, $repo)
             $f->prop_mods = $v->getAttribute('prop-mods');
             $f->text_mods = $v->getAttribute('text-mods');
             $f->kind = $v->getAttribute('kind');
+            $f->copyfrom_path = $v->getAttribute('copyfrom-path');
+            $f->copyfrom_rev = $v->getAttribute('copyfrom-rev');
             $f->save();
             echo "save file $f->file_path rev_id $rev->id\n";
         }
