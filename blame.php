@@ -29,6 +29,6 @@ if (empty($blame)) {
 
 render('blame.phtml', array(
     'blame' => $blame,
-    'title' => 'SVN Diff',
+    'title' => 'SVN Blame '.$file,
 ), 'layout.phtml');
 

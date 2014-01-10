@@ -6,7 +6,8 @@
 <!-- /头部 -->
 
 <!-- 主内容区 -->
+<link rel="stylesheet" type="text/css" href="css/blame.css">
 <div id="section">
-  <?php echo nl2br($blame->blame) ?>
+  <?php echo highlight_blame($blame->blame) ?>
 </div>
 <!-- /主内容区 -->

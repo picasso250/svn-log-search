@@ -246,7 +246,7 @@ function get_blame($url, $file_path, $revision)
         return $entry;
     }
 
-    $command = "svn blame -r {$revision} {$url}{$file_path}";
+    $command = "svn blame {$url}{$file_path}@{$revision}";
     echo "$command\n";
     $output = shell_exec($command);
 
@@ -313,6 +313,15 @@ function highlight_diff($log)
     $log = str_replace(' ', '&nbsp;', $log);
     $log = str_replace(PHP_EOL, "<br>\n", $log);
     return "<div class=\"svn-diff\">$log</div>";
+}
+
+function highlight_blame($log)
+{
+    $log = htmlspecialchars($log);
+    $log = preg_replace('/^( *\d+) (\w+) (.*)$/um', '<line><rev>$1</rev> <author>$2</author> $3</line>', $log);
+    $log = str_replace(' ', '&nbsp;', $log);
+    $log = str_replace(PHP_EOL, "<br>\n", $log);
+    return "<div class=\"svn-blame\">$log</div>";
 }
 
 function highlight_keyword($log, $keywords = null)
