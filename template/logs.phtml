@@ -1,5 +1,11 @@
 <?php if (isset($logs)): ?>
-<div><?php echo count($logs) ?> Matched.</div>
+
+  <?php if ($count == count($logs)): ?>
+    <div><?php echo $count ?> match.</div>
+  <?php else: ?>
+    <div><?php echo $count ?> match, <?php echo count($logs) ?> show.</div>
+  <?php endif ?>
+
 <ul>
   <?php foreach ($logs as $log): ?>
     <li>

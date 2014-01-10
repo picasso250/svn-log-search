@@ -24,17 +24,18 @@ if ($is_ajax) {
 } else {
     $limit = 100;
 }
-$logs = search_db($keywords, $root_url, $limit);
+list($logs, $count) = search_db($keywords, $root_url, $limit);
 
 $data = array(
     'root_url' => $root_url,
     'logs' => $logs,
+    'count' => $count,
     'keyword' => $keyword,
     'keywords' => $keywords,
     'title' => 'SVN Log Search',
 );
 if ($is_ajax) {
-    render('template/logs.phtml', $data);
+    render('logs.phtml', $data);
     exit();
 }
 render('index.phtml', $data, 'layout.phtml');

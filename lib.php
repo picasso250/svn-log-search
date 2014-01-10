@@ -141,22 +141,18 @@ function get_min_rev($repo_id) {
         ->findOne()->mr ?: 0;
 }
 
-function search_db($keyword, $root_url, $limit = 500)
+function get_prepare_orm($keyword, $root_url)
 {
     $revOrm = ORM::forTable('rev');
     $revOrm
         ->join('repo', array('rev.repo_id', '=', 'repo.id'))
         ->left_outer_join('changed_path', array('f.rev_id', '=', 'rev.id'), 'f')
-        ->select('rev.*')
-        ->groupBy('rev.rev')
-        ->orderByDesc('rev.rev')
-        ->whereEqual('repo.repo', $root_url)
-        ->limit($limit);
+        ->whereEqual('repo.repo', $root_url);
 
     if (is_string($keyword)) {
         $keyword = trim($keyword);
         if (empty($keyword)) {
-            return $revOrm->findMany();
+            return $revOrm;
         }
         $keywords = implode(' ', $keyword);
     } else {
@@ -164,7 +160,7 @@ function search_db($keyword, $root_url, $limit = 500)
     }
     $keywords = array_map('trim', array_filter($keywords, 'trim'));
     if (empty($keywords)) {
-        return $revOrm->findMany();
+        return $revOrm;
     }
     $whereExpr = array();
     $values = array();
@@ -177,7 +173,26 @@ function search_db($keyword, $root_url, $limit = 500)
         $values[] = "%$kw%";
     }
     $revOrm->whereRaw(implode(' AND ', $whereExpr), $values);
-    return $revOrm->findMany();
+    return $revOrm;
+}
+
+function search_db($keyword, $root_url, $limit = 500)
+{
+    $revOrm = get_prepare_orm($keyword, $root_url);
+    $revOrm
+        ->orderByDesc('rev.rev')
+        ->limit($limit);
+
+    if (empty($keyword)) {
+        return $revOrm->findMany();
+    }
+    $countORM = get_prepare_orm($keyword, $root_url);
+    $logs = $revOrm
+        ->select('rev.*')
+        ->groupBy('rev.rev')
+        ->findMany();
+    $count = $countORM->selectExpr('COUNT(DISTINCT rev.rev) AS c')->findOne()->c;
+    return array($logs, $count);
 }
 
 function get_diff_from_db($root_url, $file_path, $revision)
@@ -305,10 +320,11 @@ function highlight_keyword($log, $keywords = null)
 
 function render($tpl, $vars = array(), $layout = null)
 {
+    $root = __DIR__.'/template';
     extract($vars);
     if ($layout) {
-        include $layout;
+        include "$root/$layout";
     } else {
-        include $tpl;
+        include "$root/$tpl";
     }
 }
