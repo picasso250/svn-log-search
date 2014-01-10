@@ -10,13 +10,32 @@
   <?php foreach ($logs as $log): ?>
     <li>
       <div class="svn-log-entry">
-        <a href="rev.php?revision=<?php echo $log->rev ?>&amp;repo=<?php echo $root_url ?>" class="revision"><?php echo $log->rev ?></a> |
-        <a href="author.php?author=<?php echo $log->author ?>&amp;repo=<?php echo $root_url ?>" class="author"><?php echo highlight_keyword($log->author, $keywords) ?></a> |
+        <a href="rev.php?revision=<?php echo $log->rev ?>&amp;repo=<?php echo $repo ?>" class="revision"><?php echo $log->rev ?></a> |
+        <a href="author.php?author=<?php echo $log->author ?>&amp;repo=<?php echo $repo ?>" class="author"><?php echo highlight_keyword($log->author, $keywords) ?></a> |
         <date><?php echo highlight_keyword($log->commit_date, $keywords) ?></date>
         <div class="msg"><?php echo nl2br(highlight_keyword($log->msg, $keywords)) ?></div>
-        <?php include 'files.phtml' ?>
+        <?php render('files.phtml', array(
+          'files' => $files = get_files_by_rev($log->id, 3),
+          'log' => $log,
+          'repo' => $repo,
+        )) ?>
+        <?php if (get_files_count_by_rev($log->id) != count($files)): ?>
+        <a href="javascript:void(0)" onClick="loadFilesByRev(<?php echo $log->id ?>)">show more</a>
+        <?php endif ?>
       </div>
     </li>
   <?php endforeach ?>
 </ul>
 <?php endif ?>
+
+<script type="text/javascript">
+function loadFilesByRev(rev) {
+  var data = {
+    rev_id: rev,
+    repo: '<?php echo $repo ?>'
+  };
+  $.get('files.php', data, function (ret) {
+    $('#Files'+rev).replaceWith(ret);
+  }, 'html');
+}
+</script>

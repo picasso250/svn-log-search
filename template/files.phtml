@@ -1,5 +1,5 @@
-<ul class="files">
-  <?php foreach (get_files_by_rev($log->id) as $file): ?>
+<ul class="files" id="Files<?php echo $log->id ?>">
+  <?php foreach ($files as $file): ?>
     <li class="<?php echo $file->action ?>-action" title="">
       <?php echo $file->action ?>
       <?php echo $file->file_path ?>

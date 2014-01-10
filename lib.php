@@ -30,6 +30,12 @@ function get_file_commit_count_by_author($repo, $author)
         ->count();
 }
 
+function get_files_count_by_rev($rev_id)
+{
+    return $orm = ORM::forTable('changed_path')
+        ->whereEqual('rev_id', $rev_id)
+        ->count();
+}
 function get_files_by_rev($rev_id, $limit = null)
 {
     $orm = ORM::forTable('changed_path')
@@ -37,7 +43,7 @@ function get_files_by_rev($rev_id, $limit = null)
         ->orderByAsc('file_path')
         ;
     if ($limit !== null) {
-        $orm->limit(5);
+        $orm->limit($limit);
     }
     return $orm->findMany();
 }
