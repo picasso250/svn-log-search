@@ -1,0 +1,33 @@
+.svn-log-entry span {
+  color: #999999;
+}
+.svn-log-entry rev {
+  color: #914040;
+}
+.svn-log-entry name {
+  color: #292627;
+}
+.svn-log-entry date {
+  color: #897F8A;
+}
+.svn-log-entry linenum {
+  color: #696679;
+}
+.svn-log-entry file {
+  color: #aaa;
+}
+.svn-log-entry .A-action {
+  color: #56B459;
+}
+.svn-log-entry .M-action {
+  color: #4C4C99;
+}
+.svn-log-entry .D-action {
+  color: #F03B3B;
+}
+.svn-log-entry keyword {
+  background-color: #E9D220;
+  font-weight: bold;
+  border-radius: 5px;
+  color: #414141;
+}
