@@ -1,11 +1,6 @@
 <?php
 
-require 'vendor/autoload.php';
-require 'lib.php';
-$config = include 'config.php';
-
-ORM::configure($config['dsn']);
-ORM::configure($config['db_config']);
+include 'init.php';
 
 if (!isset($_GET['repo']) || !isset($_GET['revision'])) {
     die('no repo or no revision given');

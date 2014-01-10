@@ -1,12 +1,6 @@
 <?php
 
-require 'vendor/autoload.php';
-require 'lib.php';
-require 'SvnUpdateLogJob.php';
-$config = include 'config.php';
-
-ORM::configure($config['dsn']);
-ORM::configure($config['db_config']);
+include 'init.php';
 
 $repo = isset($_GET['repo']) ? $_GET['repo'] : 0;
 $root_url = $config['repos'][$repo];
