@@ -21,7 +21,7 @@ if ($is_ajax) {
 list($logs, $count) = search_db($keywords, $root_url, $limit);
 
 $data = array(
-    'root_url' => $root_url,
+    'repo' => $root_url,
     'logs' => $logs,
     'count' => $count,
     'keyword' => $keyword,
