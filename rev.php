@@ -19,5 +19,6 @@ $rev = get_rev($repo, $revision);
 $data = array(
     'log' => $rev,
     'title' => "Revision $revision",
+    'repo' => $repo,
 );
 render('revision.phtml', $data, 'layout.phtml');
