@@ -5,6 +5,7 @@ function get_files_by_rev($rev_id, $limit = null)
 
     $orm = ORM::forTable('changed_path')
         ->whereEqual('rev_id', $rev_id)
+        ->orderByAsc('file_path')
         ;
     if ($limit !== null) {
         $orm->limit(5);
