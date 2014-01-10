@@ -1,3 +1,69 @@
+textarea:focus, input:focus{
+    outline: 0;
+}
+.search-form {
+  padding: 15px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.search-form input[type=submit]:hover {
+  color: #FFF;
+  background-color: #569E3D;
+  background-image: -moz-linear-gradient(#79d858, #569e3d);
+  background-image: -webkit-linear-gradient(#79D858, #569E3D);
+  background-image: linear-gradient(#79D858, #569E3D);
+  background-repeat: repeat-x;
+  border-color: #4A993E;
+}
+.search-form input[type=submit] {
+  padding: 0 10px;
+  line-height: 18px;
+  white-space: nowrap;
+  border: 1px solid #D5D5D5;
+  margin-left: 33px;
+
+  background-color: #569E3D;
+  background-image: none;
+  border-color: #418737;
+  color: #FFF;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  background-color: #60B044;
+  background-image: -moz-linear-gradient(#8add6d, #60b044);
+  background-image: -webkit-linear-gradient(#8ADD6D, #60B044);
+  background-image: linear-gradient(#8ADD6D, #60B044);
+  background-repeat: repeat-x;
+  border-color: #5CA941;
+  padding: 7px 12px;
+  font-size: 15px;
+  font-weight: bold;
+  white-space: nowrap;
+  background-repeat: repeat-x;
+  border-radius: 3px;
+  vertical-align: middle;
+  cursor: pointer;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-appearance: none;
+}
+.search-form input[type=text]:focus {
+  border-style: solid;
+  border-color: #51A7E8;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075),0 0 5px rgba(81, 167, 232, 0.5);
+}
+.search-form input[type=text] {
+  border-color: #DDD;
+  background: #FCFCFC;
+  box-shadow: 1px 1px 0 #FFF;
+  min-height: 25px;
+  padding: 4px 20px 4px 8px;
+  font-size: 13px;
+  border: 1px solid #CCC;
+  border-radius: 3px;
+}
 .svn-log-entry {
   padding: 3px;
   margin: 10px;
@@ -32,24 +98,22 @@
   color: #F03B3B;
 }
 .svn-log-entry .msg {
+  margin-top: 5px;
   color: #5C4E5A;
+  border-left-style: solid;
+  border-width: 5px;
+  border-color: #949494;
+  padding-left: 6px;
 }
 .svn-log-entry .control {
   color: #6B6464;
 }
 .svn-log-entry .files {
-  margin: 14px;
   margin-top: 3px;
-  margin-bottom: 0;
+  margin-left: 19px;
   font-family: "Yahei Consolas Hydrid";
 }
 .svn-log-entry keyword {
-  background-color: #F8FF49;
   font-weight: bold;
-  border-radius: 5px;
-  padding: 1px;
-  border-style: solid;
-  border-width: 1px;
-  border-color: #EBEB28;
-  margin: 1px;
+  text-decoration: underline;
 }
