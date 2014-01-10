@@ -4,12 +4,9 @@
 -- ----------------------------
 DROP TABLE IF EXISTS `blame`;
 CREATE TABLE `blame` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `rev_id` int(10) unsigned DEFAULT NULL,
-  `file` varchar(255) DEFAULT NULL,
-  `blame` blob,
-  PRIMARY KEY (`id`),
-  KEY `idx_rev` (`rev_id`)
+  `file_id` int(10) unsigned NOT NULL,
+  `blame` text,
+  PRIMARY KEY (`file_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -26,19 +23,16 @@ CREATE TABLE `changed_path` (
   `file_path` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `path_rev_idx` (`rev_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10584 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for diff
 -- ----------------------------
 DROP TABLE IF EXISTS `diff`;
 CREATE TABLE `diff` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `rev_id` int(10) unsigned DEFAULT NULL,
-  `file` varchar(255) DEFAULT NULL,
-  `diff` blob,
-  PRIMARY KEY (`id`),
-  KEY `idx_rev` (`rev_id`)
+  `file_id` int(10) unsigned NOT NULL,
+  `diff` text,
+  PRIMARY KEY (`file_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -49,7 +43,7 @@ CREATE TABLE `repo` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `repo` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for rev
@@ -66,4 +60,4 @@ CREATE TABLE `rev` (
   PRIMARY KEY (`id`),
   KEY `idx_rev` (`rev`),
   KEY `idx_repo` (`repo_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=878 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
