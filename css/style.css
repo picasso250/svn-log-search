@@ -1,3 +1,7 @@
+.svn-log-entry {
+  padding: 3px;
+  margin: 10px;
+}
 .svn-log-entry span {
   color: #999999;
 }
@@ -24,6 +28,18 @@
 }
 .svn-log-entry .D-action {
   color: #F03B3B;
+}
+.svn-log-entry .msg {
+  color: #5C4E5A;
+}
+.svn-log-entry .control {
+  color: #6B6464;
+}
+.svn-log-entry .files {
+  margin: 14px;
+  margin-top: 3px;
+  margin-bottom: 0;
+  font-family: "Yahei Consolas Hydrid";
 }
 .svn-log-entry keyword {
   background-color: #E9D220;

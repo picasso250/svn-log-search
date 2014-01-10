@@ -27,19 +27,19 @@
             <rev><?php echo $log->rev ?></rev> |
             <name><?php echo $log->author ?></name> |
             <date><?php echo $log->commit_date ?></date>
-            <ul>
+            <div class="msg"><?php echo nl2br($log->msg) ?></div>
+            <ul class="files">
               <?php foreach (get_files_by_rev($log->id) as $file): ?>
                 <li class="<?php echo $file->action ?>-action">
                   <?php echo $file->action ?>
                   <?php echo $file->file_path ?>
                   <?php if ($file->action == 'M'): ?>
-                    <a href="diff.php?repo=<?php echo htmlentities($root_url) ?>&amp;file=<?php echo $file->file_path ?>&amp;revision=<?php echo $log->rev ?>">diff</a>
-                    <a href="blame.php?repo=<?php echo htmlentities($root_url) ?>&amp;file=<?php echo $file->file_path ?>&amp;revision=<?php echo $log->rev ?>">blame</a>
+                    <a class="control" href="diff.php?repo=<?php echo htmlentities($root_url) ?>&amp;file=<?php echo $file->file_path ?>&amp;revision=<?php echo $log->rev ?>">diff</a>
+                    <a class="control" href="blame.php?repo=<?php echo htmlentities($root_url) ?>&amp;file=<?php echo $file->file_path ?>&amp;revision=<?php echo $log->rev ?>">blame</a>
                   <?php endif ?>
                 </li>
               <?php endforeach ?>
             </ul>
-            <div><?php echo nl2br($log->msg) ?></div>
           </div>
         </li>
       <?php endforeach ?>
